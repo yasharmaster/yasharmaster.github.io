@@ -5,8 +5,8 @@
     <description>IT Student at IIIT Allahabad</description>
     <link>http://yashsharma.tech/</link>
     <atom:link href="http://yashsharma.tech/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Mon, 12 Jun 2017 10:38:19 +0530</pubDate>
-    <lastBuildDate>Mon, 12 Jun 2017 10:38:19 +0530</lastBuildDate>
+    <pubDate>Mon, 12 Jun 2017 13:45:47 +0530</pubDate>
+    <lastBuildDate>Mon, 12 Jun 2017 13:45:47 +0530</lastBuildDate>
     <generator>Jekyll v3.1.1</generator>
     
       <item>
@@ -34,9 +34,16 @@
     &lt;span class=&quot;nt&quot;&gt;&amp;lt;collection&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;crossReferences&amp;quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;referenced-type=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;CrossReference&amp;quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;reverse-reference=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;subject&amp;quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;
 &lt;span class=&quot;nt&quot;&gt;&amp;lt;/class&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-&lt;p&gt;While developing Neo4j prototype of InterMine, to reduce the dependency on external files, it was decided to store the schema in the database itself. Neo4j being a graph database stores data in the form of Nodes and directed Relationships. This brought up two issues:
-1. The data model must to be in the form of a graph itself so that it can be stored in the Neo4j database.
-2. The data model should represent all the existing Nodes in the database and the Relationships among them.&lt;/p&gt;
+&lt;p&gt;While developing Neo4j prototype of InterMine, to reduce the dependency on external files, it was decided to store the schema in the database itself. Neo4j being a graph database stores data in the form of Nodes and directed Relationships. This brought up two issues:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;
+    &lt;p&gt;The data model must to be in the form of a graph itself so that it can be stored in the Neo4j database.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;The data model should represent all the existing Nodes in the database and the Relationships among them.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ol&gt;
 
 &lt;p&gt;Since the data model is a graph and it stores information about the InterMine graph, it can be called a metagraph.&lt;/p&gt;
 

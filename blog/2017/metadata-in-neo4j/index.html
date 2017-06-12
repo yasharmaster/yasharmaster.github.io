@@ -86,9 +86,16 @@
     <span class="nt">&lt;collection</span> <span class="na">name=</span><span class="s">&quot;crossReferences&quot;</span> <span class="na">referenced-type=</span><span class="s">&quot;CrossReference&quot;</span> <span class="na">reverse-reference=</span><span class="s">&quot;subject&quot;</span><span class="nt">/&gt;</span>
 <span class="nt">&lt;/class&gt;</span></code></pre></figure>
 
-<p>While developing Neo4j prototype of InterMine, to reduce the dependency on external files, it was decided to store the schema in the database itself. Neo4j being a graph database stores data in the form of Nodes and directed Relationships. This brought up two issues:
-1. The data model must to be in the form of a graph itself so that it can be stored in the Neo4j database.
-2. The data model should represent all the existing Nodes in the database and the Relationships among them.</p>
+<p>While developing Neo4j prototype of InterMine, to reduce the dependency on external files, it was decided to store the schema in the database itself. Neo4j being a graph database stores data in the form of Nodes and directed Relationships. This brought up two issues:</p>
+
+<ol>
+  <li>
+    <p>The data model must to be in the form of a graph itself so that it can be stored in the Neo4j database.</p>
+  </li>
+  <li>
+    <p>The data model should represent all the existing Nodes in the database and the Relationships among them.</p>
+  </li>
+</ol>
 
 <p>Since the data model is a graph and it stores information about the InterMine graph, it can be called a metagraph.</p>
 
