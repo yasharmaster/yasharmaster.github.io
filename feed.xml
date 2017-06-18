@@ -5,9 +5,94 @@
     <description>IT Student at IIIT Allahabad</description>
     <link>http://yashsharma.tech/</link>
     <atom:link href="http://yashsharma.tech/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Mon, 12 Jun 2017 13:57:14 +0530</pubDate>
-    <lastBuildDate>Mon, 12 Jun 2017 13:57:14 +0530</lastBuildDate>
+    <pubDate>Sun, 18 Jun 2017 14:00:36 +0530</pubDate>
+    <lastBuildDate>Sun, 18 Jun 2017 14:00:36 +0530</lastBuildDate>
     <generator>Jekyll v3.1.1</generator>
+    
+      <item>
+        <title>The PathQuery To Cypher Puzzle - Part 1</title>
+        <description>&lt;p&gt;The PathQuery To Cypher Conversion topic, is too big to be covered in a single post, so I’ll write it in multiple parts. In this part, I’ll give you a brief overview about Path Query &amp;amp; Cypher, and will give you an insight on how we plan to query the InterMine Neo4j database.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/intermine-neo4j.png&quot; alt=&quot;Metagraph&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;introduction&quot;&gt;Introduction&lt;/h2&gt;
+
+&lt;p&gt;If you have read my previous post, you would have an idea of what &lt;a href=&quot;http://intermine.org/&quot;&gt;InterMine&lt;/a&gt; is, a data warehousing system which stores complex biological data. Now, one of the main features of InterMine is its fast &amp;amp; flexible querying ability. After all what is the point of storing the data if you can’t retrieve it as per your requirements, fast enough! :)&lt;/p&gt;
+
+&lt;p&gt;So, there are two parts to an InterMine data warehouse, front-end and back-end. The new front-end of InterMine is called &lt;a href=&quot;http://bluegenes.apps.intermine.org/&quot;&gt;BlueGenes&lt;/a&gt; and is being developed in the &lt;a href=&quot;https://github.com/intermine/bluegenes&quot;&gt;BlueGenes Repository&lt;/a&gt;. In order to retrieve any data from InterMine, users need to submit some information about the data to BlueGenes. For example, give me all the &lt;em&gt;Experiments&lt;/em&gt; in which, the &lt;em&gt;Notch&lt;/em&gt; gene in organism &lt;em&gt;Drosophila&lt;/em&gt; participates. Now based on this information, &lt;a href=&quot;http://bluegenes.apps.intermine.org/&quot;&gt;BlueGenes&lt;/a&gt; generates a &lt;em&gt;Path Query&lt;/em&gt;. The back-end part processes this &lt;em&gt;Path Query&lt;/em&gt; and returns the required data. You should give a try to the &lt;a href=&quot;http://bluegenes.apps.intermine.org/#/querybuilder&quot;&gt;BlueGenes Query Builder&lt;/a&gt;, it makes building &lt;em&gt;Path Queries&lt;/em&gt; easier, plus the UI is cool.&lt;/p&gt;
+
+&lt;h2 id=&quot;path-query&quot;&gt;Path Query&lt;/h2&gt;
+
+&lt;p&gt;If you would like a detailed explanation about Path Queries, you can find it at &lt;a href=&quot;http://intermine.readthedocs.io/en/latest/api/pathquery/&quot;&gt;The PathQuery API docs&lt;/a&gt;. Here I am presenting a much shorter version. First, lets look at a simple PathQuery example.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-xml&quot; data-lang=&quot;xml&quot;&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;query&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;model=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;genomic&amp;quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;view=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;Gene.symbol&amp;quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;constraint&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;path=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;Gene.length&amp;quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;op=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;&amp;amp;gt;&amp;quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;value=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&amp;quot;12345&amp;quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/query&amp;gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;These three lines of XML make up a PathQuery which says, for all the &lt;em&gt;Genes&lt;/em&gt; which have the &lt;em&gt;length&lt;/em&gt; greater than &lt;em&gt;12345&lt;/em&gt;, give me their &lt;em&gt;Symbols&lt;/em&gt;. The PathQuery consists of the following parts.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;code&gt;Paths&lt;/code&gt; - In the example, &lt;code&gt;Gene.symbol&lt;/code&gt;, &lt;code&gt;Gene.length&lt;/code&gt; are paths. Paths can be of any arbitrary length, e.g. &lt;code&gt;Protein.gene.homologues.homologue.alleles.alleleClass&lt;/code&gt; is also a valid Path.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;code&gt;Views&lt;/code&gt; - These are the attributes that we want to retrieve from the database. First line in the example shows the &lt;code&gt;view&lt;/code&gt; part.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;code&gt;Constraints&lt;/code&gt; - These are used restrict the matching values i.e. to filter the data. In the example, the second line is the constraint part which says &lt;code&gt;Gene.length &amp;gt; 12345&lt;/code&gt;.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;As I mentioned, I am not presenting other PathQuery parts line JOINSs, Sort Order etc to keep it simple. If you want to get in detail of PathQuery, you are welcome to checkout &lt;a href=&quot;http://intermine.readthedocs.io/en/latest/api/pathquery/&quot;&gt;The PathQuery API docs&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;querying-neo4j-database&quot;&gt;Querying Neo4j Database&lt;/h2&gt;
+
+&lt;p&gt;The goal of the project this summer, is to build a prototype of InterMine which uses Neo4j database at the backend. Now, there are three possible ways to query a Neo4j database.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;a href=&quot;https://neo4j.com/docs/java-reference/current/javadocs/org/neo4j/graphdb/package-summary.html&quot;&gt;Core Java API&lt;/a&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;a href=&quot;https://neo4j.com/docs/java-reference/current/javadocs/org/neo4j/graphdb/traversal/package-summary.html&quot;&gt;Traversal Framework&lt;/a&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;a href=&quot;https://neo4j.com/docs/developer-manual/current/cypher/&quot;&gt;Cypher&lt;/a&gt;&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The first two can only be used for creating embedded Neo4j applications i.e. they work when your application runs on same JVM as the Neo4j database instance. In other words, the developed Java application (based on Core Java API or Traversal) and the Neo4j database must reside on the same server.&lt;/p&gt;
+
+&lt;p&gt;On the other hand, Cypher runs on &lt;a href=&quot;https://boltprotocol.org/&quot;&gt;Bolt Protocol&lt;/a&gt; which is a client-server protocol designed for database applications. It allows a client to send statements, each consisting of a single string and a set of typed parameters. The server responds to each request with a result message and an optional stream of result records. The massive advantage of this protcol is that, the Neo4j database and the client application need not be there on the same machine. So, I can run the client side application on my machine and run the queries on a database running on any machine on the planet, if it is connected to the Internet. How awesome is that! ^_^&lt;/p&gt;
+
+&lt;p&gt;Although, Core Java API &amp;amp; Traversal framework are a bit faster than Cypher, we decided to go with Cypher because of this advantage. Now let’s discuss a bit about Cypher before moving further.&lt;/p&gt;
+
+&lt;h2 id=&quot;cypher&quot;&gt;Cypher&lt;/h2&gt;
+
+&lt;p&gt;The &lt;em&gt;Cypher Query Language&lt;/em&gt; (CQL) aka Cypher is a declarative language that is used to query the Neo4j graph database. Again, if you wanna go in detail, checkout &lt;a href=&quot;https://neo4j.com/docs/developer-manual/current/cypher/&quot;&gt;Neo4j Developer Manual&lt;/a&gt;. I am barely touching the surface here. So, here is a simple Cypher query example.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-cypher&quot; data-lang=&quot;cypher&quot;&gt;&lt;span class=&quot;k&quot;&gt;MATCH&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Gene&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;WHERE&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;n&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;length&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;m&quot;&gt;12345&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;RETURN&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;n&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;symbol&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;This Cypher query asks Neo4j engine to match all the nodes which are labelled as &lt;em&gt;Genes&lt;/em&gt;, and if their &lt;em&gt;length&lt;/em&gt; is greater than &lt;em&gt;12345&lt;/em&gt;, then return their &lt;em&gt;symbols&lt;/em&gt;. Yeah, this is similar to what the PathQuery example above says. The only difference is that this is in the context of a Graph Database and that was in the context of InterMine which is based on a relational database.&lt;/p&gt;
+
+&lt;h2 id=&quot;pathquery-to-cypher&quot;&gt;PathQuery To Cypher&lt;/h2&gt;
+
+&lt;p&gt;Now, we know that the InterMine front-end creates PathQueries which are processed by the IM Path Query Service. Also, the InterMine Neo4j Graph is queried using Cypher. So, in order for BlueGenes to query Neo4j, we need to somehow convert the Path Query into Cypher.&lt;/p&gt;
+
+&lt;p&gt;Since the &lt;em&gt;paths&lt;/em&gt; in the path query can get arbitrarily big and many other components like JOINs, Sort Order, Constraints are there to add to the complexity, the conversion of Path Query to Cypher is not a trivial task. The converter should convert ANY path query of ANY complexity to cypher. Turns out that this is the hardest and the most time consuming part of the project.&lt;/p&gt;
+
+&lt;p&gt;In the next part, I am going to cover the approach that we are going to use for PathQuery to Cypher conversion. So stay tuned!&lt;/p&gt;
+</description>
+        <pubDate>Sun, 18 Jun 2017 13:30:00 +0530</pubDate>
+        <link>http://yashsharma.tech/blog/2017/path-query-cypher-puzzle/</link>
+        <guid isPermaLink="true">http://yashsharma.tech/blog/2017/path-query-cypher-puzzle/</guid>
+        
+        
+        <category>jekyll</category>
+        
+      </item>
     
       <item>
         <title>Metadata in Neo4j</title>
