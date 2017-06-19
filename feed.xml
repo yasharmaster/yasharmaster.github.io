@@ -5,15 +5,15 @@
     <description>IT Student at IIIT Allahabad</description>
     <link>http://yashsharma.tech/</link>
     <atom:link href="http://yashsharma.tech/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Sun, 18 Jun 2017 14:00:36 +0530</pubDate>
-    <lastBuildDate>Sun, 18 Jun 2017 14:00:36 +0530</lastBuildDate>
+    <pubDate>Mon, 19 Jun 2017 08:37:32 +0530</pubDate>
+    <lastBuildDate>Mon, 19 Jun 2017 08:37:32 +0530</lastBuildDate>
     <generator>Jekyll v3.1.1</generator>
     
       <item>
         <title>The PathQuery To Cypher Puzzle - Part 1</title>
-        <description>&lt;p&gt;The PathQuery To Cypher Conversion topic, is too big to be covered in a single post, so I’ll write it in multiple parts. In this part, I’ll give you a brief overview about Path Query &amp;amp; Cypher, and will give you an insight on how we plan to query the InterMine Neo4j database.&lt;/p&gt;
+        <description>&lt;p&gt;The PathQuery To Cypher Conversion topic is too big to be covered in a single post, so I’ll write it in multiple parts. In this part, I’ll give you a brief overview about Path Query &amp;amp; Cypher, and will give you an insight on how we plan to query the InterMine Neo4j database.&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;/images/intermine-neo4j.png&quot; alt=&quot;Metagraph&quot; /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/images/intermine-neo4j.png&quot; alt=&quot;InterMine Neo4j Logo&quot; /&gt;&lt;/p&gt;
 
 &lt;h2 id=&quot;introduction&quot;&gt;Introduction&lt;/h2&gt;
 
