@@ -3,10 +3,10 @@
   <channel>
     <title>Yash Sharma</title>
     <description>IT Student at IIIT Allahabad</description>
-    <link>http://yashsharma.tech/</link>
-    <atom:link href="http://yashsharma.tech/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Thu, 22 Jun 2017 23:55:01 +0530</pubDate>
-    <lastBuildDate>Thu, 22 Jun 2017 23:55:01 +0530</lastBuildDate>
+    <link>http://yasharmaster.github.io/</link>
+    <atom:link href="http://yasharmaster.github.io/feed.xml" rel="self" type="application/rss+xml"/>
+    <pubDate>Fri, 23 Jun 2017 00:04:29 +0530</pubDate>
+    <lastBuildDate>Fri, 23 Jun 2017 00:04:29 +0530</lastBuildDate>
     <generator>Jekyll v3.1.1</generator>
     
       <item>
@@ -86,8 +86,8 @@
 &lt;p&gt;In the next part, I am going to cover the approach that we are going to use for PathQuery to Cypher conversion. So stay tuned!&lt;/p&gt;
 </description>
         <pubDate>Sun, 18 Jun 2017 13:30:00 +0530</pubDate>
-        <link>http://yashsharma.tech/blog/2017/path-query-cypher-puzzle/</link>
-        <guid isPermaLink="true">http://yashsharma.tech/blog/2017/path-query-cypher-puzzle/</guid>
+        <link>http://yasharmaster.github.io/blog/2017/path-query-cypher-puzzle/</link>
+        <guid isPermaLink="true">http://yasharmaster.github.io/blog/2017/path-query-cypher-puzzle/</guid>
         
         
         <category>jekyll</category>
@@ -216,8 +216,8 @@
 &lt;p&gt;Perhaps in a later post, I will discuss the &lt;a href=&quot;https://github.com/intermine/neo4j/tree/dev/src/org/intermine/neo4j/metadata&quot;&gt;org.intermine.neo4j.metadata&lt;/a&gt; package and will write a small tutorial on how you can use it generate &amp;amp; query your own Neo4j data model. So, stay tuned!&lt;/p&gt;
 </description>
         <pubDate>Sun, 11 Jun 2017 19:16:52 +0530</pubDate>
-        <link>http://yashsharma.tech/blog/2017/metadata-in-neo4j/</link>
-        <guid isPermaLink="true">http://yashsharma.tech/blog/2017/metadata-in-neo4j/</guid>
+        <link>http://yasharmaster.github.io/blog/2017/metadata-in-neo4j/</link>
+        <guid isPermaLink="true">http://yasharmaster.github.io/blog/2017/metadata-in-neo4j/</guid>
         
         
         <category>jekyll</category>
@@ -243,8 +243,8 @@
 &lt;p&gt;Congratulations to all other GSoC students and wish you a great summer ahead.&lt;/p&gt;
 </description>
         <pubDate>Tue, 23 May 2017 19:16:52 +0530</pubDate>
-        <link>http://yashsharma.tech/blog/2017/gsoc-journey-begins/</link>
-        <guid isPermaLink="true">http://yashsharma.tech/blog/2017/gsoc-journey-begins/</guid>
+        <link>http://yasharmaster.github.io/blog/2017/gsoc-journey-begins/</link>
+        <guid isPermaLink="true">http://yasharmaster.github.io/blog/2017/gsoc-journey-begins/</guid>
         
         
         <category>jekyll</category>
@@ -256,8 +256,8 @@
         <description>&lt;p&gt;Hello everyone! Welcome to my blog. It is based on Jekyll which is a static HTML generator. I will share exciting stuff soon. Stay tuned!&lt;/p&gt;
 </description>
         <pubDate>Fri, 20 Jan 2017 19:16:52 +0530</pubDate>
-        <link>http://yashsharma.tech/blog/2017/first-jekyll-blog/</link>
-        <guid isPermaLink="true">http://yashsharma.tech/blog/2017/first-jekyll-blog/</guid>
+        <link>http://yasharmaster.github.io/blog/2017/first-jekyll-blog/</link>
+        <guid isPermaLink="true">http://yasharmaster.github.io/blog/2017/first-jekyll-blog/</guid>
         
         
         <category>jekyll</category>
