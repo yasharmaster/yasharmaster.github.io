@@ -5,13 +5,13 @@
     <description>IT Student at IIIT Allahabad</description>
     <link>http://yasharmaster.github.io/</link>
     <atom:link href="http://yasharmaster.github.io/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Fri, 23 Jun 2017 00:04:29 +0530</pubDate>
-    <lastBuildDate>Fri, 23 Jun 2017 00:04:29 +0530</lastBuildDate>
+    <pubDate>Fri, 23 Jun 2017 12:25:37 +0530</pubDate>
+    <lastBuildDate>Fri, 23 Jun 2017 12:25:37 +0530</lastBuildDate>
     <generator>Jekyll v3.1.1</generator>
     
       <item>
         <title>The PathQuery To Cypher Puzzle - Part 1</title>
-        <description>&lt;p&gt;The PathQuery To Cypher Conversion topic is too big to be covered in a single post, so I’ll write it in multiple parts. In this part, I’ll give you a brief overview about Path Query &amp;amp; Cypher, and will give you an insight on how we plan to query the InterMine Neo4j database.&lt;/p&gt;
+        <description>&lt;p&gt;The conversion of PathQuery To Cypher effectively &amp;amp; accurately is crucial for the Neo4j prototype of InterMine. This post provides a brief overview of Path Query &amp;amp; Cypher and gives you an insight on how we plan to query the InterMine Neo4j database. In upcoming posts, the conversion approach will be discussed.&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&quot;/images/intermine-neo4j.png&quot; alt=&quot;InterMine Neo4j Logo&quot; /&gt;&lt;/p&gt;
 
@@ -89,8 +89,22 @@
         <link>http://yasharmaster.github.io/blog/2017/path-query-cypher-puzzle/</link>
         <guid isPermaLink="true">http://yasharmaster.github.io/blog/2017/path-query-cypher-puzzle/</guid>
         
+        <category>intermine</category>
         
-        <category>jekyll</category>
+        <category>neo4j</category>
+        
+        <category>PathQuery</category>
+        
+        <category>gsoc</category>
+        
+        <category>Cypher</category>
+        
+        <category>conversion</category>
+        
+        <category>database</category>
+        
+        
+        <category>gsoc</category>
         
       </item>
     
@@ -219,8 +233,22 @@
         <link>http://yasharmaster.github.io/blog/2017/metadata-in-neo4j/</link>
         <guid isPermaLink="true">http://yasharmaster.github.io/blog/2017/metadata-in-neo4j/</guid>
         
+        <category>intermine</category>
         
-        <category>jekyll</category>
+        <category>gsoc</category>
+        
+        <category>neo4j</category>
+        
+        <category>metadata</category>
+        
+        <category>metagraph</category>
+        
+        <category>schmea</category>
+        
+        <category>database</category>
+        
+        
+        <category>gsoc</category>
         
       </item>
     
@@ -246,8 +274,16 @@
         <link>http://yasharmaster.github.io/blog/2017/gsoc-journey-begins/</link>
         <guid isPermaLink="true">http://yasharmaster.github.io/blog/2017/gsoc-journey-begins/</guid>
         
+        <category>intermine</category>
         
-        <category>jekyll</category>
+        <category>neo4j</category>
+        
+        <category>gsoc</category>
+        
+        <category>database</category>
+        
+        
+        <category>gsoc</category>
         
       </item>
     
