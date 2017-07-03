@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
+<loc>http://yasharmaster.github.io/blog/2017/creating-match-return-order-by-from-pathtree/</loc>
+<lastmod>2017-07-02T13:30:00+05:30</lastmod>
+</url>
+<url>
 <loc>http://yasharmaster.github.io/blog/2017/path-query-cypher-puzzle-part-2/</loc>
 <lastmod>2017-06-26T13:30:00+05:30</lastmod>
 </url>
@@ -34,6 +38,9 @@
 </url>
 <url>
 <loc>http://yasharmaster.github.io/resume/</loc>
+</url>
+<url>
+<loc>http://yasharmaster.github.io/blog/page/2/</loc>
 </url>
 <url>
 <loc>http://yasharmaster.github.io/assets/YashResume.pdf</loc>
