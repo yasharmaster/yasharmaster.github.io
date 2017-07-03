@@ -123,6 +123,8 @@
 <span class="k">RETURN</span><span class="w"> </span><span class="n">b</span><span class="w"></span>
 <span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">b</span><span class="p">.</span><span class="n">symbol</span><span class="w"></span></code></pre></figure>
 
+<p>For more information, please refer to <a href="http://neo4j.com/docs/developer-manual/current/cypher/">Neo4j Developer Manual</a>.</p>
+
 <h2 id="assigning-variable-names-to-treenodes">Assigning variable names to TreeNodes</h2>
 
 <p>We see that variable names are crucial in a Cypher query. A PathTree represents all the paths in the corresponding PathQuery. Since we can have a constraint/view/order on any path, therefore we need to assign variable name to each node of the PathTree.</p>
@@ -138,7 +140,7 @@
 <p>A TreeNode for the path <code>Gene.chromosome.gene.length</code>, stores the following information.</p>
 
 <ul>
-  <li>‘type’ : Whether this TreeNode represents a Graphical Node or Relationship or a Property on them.</li>
+  <li><code>type</code> : Whether this TreeNode represents a Graphical Node or Relationship or a Property on them.</li>
   <li><code>name</code> : The last component of the path, i.e. length.</li>
   <li><code>variable name</code> : The one we generated using approach shown above, i.e. gene_chromosome_gene_length.</li>
   <li><code>graphical name</code> : This is the name by which we refer this entity/property in the InterMine Neo4j graph. Here we keep it same as <code>name</code>, i.e. length.</li>
@@ -148,7 +150,7 @@
 
 <h4 id="return-1">RETURN</h4>
 
-<p>The return clause always starts with the <em>RETURN</em> keyword. After that, we simply append the variable name and the respective graphical name for each <code>View's</code> path of the PathQuery.</p>
+<p>The return clause always starts with the <em>RETURN</em> keyword. After that, for each view in the PathQuery, we add an expression separated by commas. The expression consists of the variable name and the respective graphical name.</p>
 
 <figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">private</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">createReturnClause</span><span class="o">(</span><span class="n">Query</span> <span class="n">query</span><span class="o">,</span> <span class="n">PathTree</span> <span class="n">pathTree</span><span class="o">,</span> <span class="n">PathQuery</span> <span class="n">pathQuery</span><span class="o">)</span> <span class="o">{</span>
     <span class="k">for</span> <span class="o">(</span><span class="n">String</span> <span class="n">path</span> <span class="o">:</span> <span class="n">pathQuery</span><span class="o">.</span><span class="na">getView</span><span class="o">())</span> <span class="o">{</span>
@@ -164,7 +166,7 @@
 
 <h4 id="order-by-1">ORDER BY</h4>
 
-<p>The order by clause always starts with the <em>ORDER BY</em> keyword. After that, we simply append the variable name and the respective graphical name for each <code>sortOrder's</code> path of the PathQuery. Also, the sort type (Ascending/Descending) is also added.</p>
+<p>The order by clause always starts with the <em>ORDER BY</em> keyword. After that, we simply append the variable name and the respective graphical name for each <code>sortOrder's</code> path of the PathQuery. The sort type (Ascending/Descending) is also added.</p>
 
 <figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="c1">// The method that creates the order by clause</span>
 <span class="kd">private</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">createOrderByClause</span><span class="o">(</span><span class="n">Query</span> <span class="n">query</span><span class="o">,</span> <span class="n">PathTree</span> <span class="n">pathTree</span><span class="o">,</span> <span class="n">PathQuery</span> <span class="n">pathQuery</span><span class="o">)</span> <span class="o">{</span>
@@ -233,7 +235,7 @@
     <span class="o">}</span>
 <span class="o">}</span></code></pre></figure>
 
-<p>In the next post I’ll cover how we create the <a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/where/">Where</a> clause which is most complex among all the clauses.</p>
+<p>In the next post, the generation of <a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/where/">Where</a> clause will be covered. It is most complex of all because it involves converting around 30+ PathQuery contraints into their equivalend Cypher expressions.</p>
 
     </div>
 

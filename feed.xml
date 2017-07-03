@@ -5,8 +5,8 @@
     <description>IT Student at IIIT Allahabad</description>
     <link>http://yasharmaster.github.io/</link>
     <atom:link href="http://yasharmaster.github.io/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Mon, 03 Jul 2017 10:26:59 +0530</pubDate>
-    <lastBuildDate>Mon, 03 Jul 2017 10:26:59 +0530</lastBuildDate>
+    <pubDate>Mon, 03 Jul 2017 18:10:42 +0530</pubDate>
+    <lastBuildDate>Mon, 03 Jul 2017 18:10:42 +0530</lastBuildDate>
     <generator>Jekyll v3.1.1</generator>
     
       <item>
@@ -47,6 +47,8 @@
 &lt;span class=&quot;k&quot;&gt;RETURN&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;n&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;&lt;/span&gt;
 &lt;span class=&quot;k&quot;&gt;ORDER&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;BY&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;n&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;symbol&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
+&lt;p&gt;For more information, please refer to &lt;a href=&quot;http://neo4j.com/docs/developer-manual/current/cypher/&quot;&gt;Neo4j Developer Manual&lt;/a&gt;.&lt;/p&gt;
+
 &lt;h2 id=&quot;assigning-variable-names-to-treenodes&quot;&gt;Assigning variable names to TreeNodes&lt;/h2&gt;
 
 &lt;p&gt;We see that variable names are crucial in a Cypher query. A PathTree represents all the paths in the corresponding PathQuery. Since we can have a constraint/view/order on any path, therefore we need to assign variable name to each node of the PathTree.&lt;/p&gt;
@@ -62,7 +64,7 @@
 &lt;p&gt;A TreeNode for the path &lt;code&gt;Gene.chromosome.gene.length&lt;/code&gt;, stores the following information.&lt;/p&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;‘type’ : Whether this TreeNode represents a Graphical Node or Relationship or a Property on them.&lt;/li&gt;
+  &lt;li&gt;&lt;code&gt;type&lt;/code&gt; : Whether this TreeNode represents a Graphical Node or Relationship or a Property on them.&lt;/li&gt;
   &lt;li&gt;&lt;code&gt;name&lt;/code&gt; : The last component of the path, i.e. length.&lt;/li&gt;
   &lt;li&gt;&lt;code&gt;variable name&lt;/code&gt; : The one we generated using approach shown above, i.e. gene_chromosome_gene_length.&lt;/li&gt;
   &lt;li&gt;&lt;code&gt;graphical name&lt;/code&gt; : This is the name by which we refer this entity/property in the InterMine Neo4j graph. Here we keep it same as &lt;code&gt;name&lt;/code&gt;, i.e. length.&lt;/li&gt;
@@ -72,7 +74,7 @@
 
 &lt;h4 id=&quot;return-1&quot;&gt;RETURN&lt;/h4&gt;
 
-&lt;p&gt;The return clause always starts with the &lt;em&gt;RETURN&lt;/em&gt; keyword. After that, we simply append the variable name and the respective graphical name for each &lt;code&gt;View&#39;s&lt;/code&gt; path of the PathQuery.&lt;/p&gt;
+&lt;p&gt;The return clause always starts with the &lt;em&gt;RETURN&lt;/em&gt; keyword. After that, for each view in the PathQuery, we add an expression separated by commas. The expression consists of the variable name and the respective graphical name.&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-java&quot; data-lang=&quot;java&quot;&gt;&lt;span class=&quot;kd&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;createReturnClause&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Query&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;query&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;PathTree&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;pathTree&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;PathQuery&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;pathQuery&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
     &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;path&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;pathQuery&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;getView&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;())&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
@@ -88,7 +90,7 @@
 
 &lt;h4 id=&quot;order-by-1&quot;&gt;ORDER BY&lt;/h4&gt;
 
-&lt;p&gt;The order by clause always starts with the &lt;em&gt;ORDER BY&lt;/em&gt; keyword. After that, we simply append the variable name and the respective graphical name for each &lt;code&gt;sortOrder&#39;s&lt;/code&gt; path of the PathQuery. Also, the sort type (Ascending/Descending) is also added.&lt;/p&gt;
+&lt;p&gt;The order by clause always starts with the &lt;em&gt;ORDER BY&lt;/em&gt; keyword. After that, we simply append the variable name and the respective graphical name for each &lt;code&gt;sortOrder&#39;s&lt;/code&gt; path of the PathQuery. The sort type (Ascending/Descending) is also added.&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-java&quot; data-lang=&quot;java&quot;&gt;&lt;span class=&quot;c1&quot;&gt;// The method that creates the order by clause&lt;/span&gt;
 &lt;span class=&quot;kd&quot;&gt;private&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;createOrderByClause&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Query&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;query&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;PathTree&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;pathTree&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;PathQuery&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;pathQuery&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
@@ -157,7 +159,7 @@
     &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
 &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-&lt;p&gt;In the next post I’ll cover how we create the &lt;a href=&quot;http://neo4j.com/docs/developer-manual/current/cypher/clauses/where/&quot;&gt;Where&lt;/a&gt; clause which is most complex among all the clauses.&lt;/p&gt;
+&lt;p&gt;In the next post, the generation of &lt;a href=&quot;http://neo4j.com/docs/developer-manual/current/cypher/clauses/where/&quot;&gt;Where&lt;/a&gt; clause will be covered. It is most complex of all because it involves converting around 30+ PathQuery contraints into their equivalend Cypher expressions.&lt;/p&gt;
 </description>
         <pubDate>Sun, 02 Jul 2017 13:30:00 +0530</pubDate>
         <link>http://yasharmaster.github.io/blog/2017/creating-match-return-order-by-from-pathtree/</link>
