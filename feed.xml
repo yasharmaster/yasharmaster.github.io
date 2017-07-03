@@ -5,8 +5,8 @@
     <description>IT Student at IIIT Allahabad</description>
     <link>http://yasharmaster.github.io/</link>
     <atom:link href="http://yasharmaster.github.io/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Mon, 03 Jul 2017 10:13:06 +0530</pubDate>
-    <lastBuildDate>Mon, 03 Jul 2017 10:13:06 +0530</lastBuildDate>
+    <pubDate>Mon, 03 Jul 2017 10:26:59 +0530</pubDate>
+    <lastBuildDate>Mon, 03 Jul 2017 10:26:59 +0530</lastBuildDate>
     <generator>Jekyll v3.1.1</generator>
     
       <item>
@@ -57,17 +57,18 @@
 
 &lt;p&gt;To create the variable names, I have simply separated components in the path using an underscore instead of a dot. Also, I have converted the path string to its lower case form. For example, the TreeNode for the path &lt;code&gt;Gene.homologues.dataSets.name&lt;/code&gt; will have variable name &lt;code&gt;gene_homologues_datasets_name&lt;/code&gt;. This approach is fine till we don’t exceed the max length of variable name for a path.&lt;/p&gt;
 
-&lt;h2 id=&quot;clause-creation&quot;&gt;Clause Creation&lt;/h2&gt;
-
-&lt;h4 id=&quot;some-background&quot;&gt;Some background&lt;/h4&gt;
+&lt;h4 id=&quot;treenode-description&quot;&gt;TreeNode Description&lt;/h4&gt;
 
 &lt;p&gt;A TreeNode for the path &lt;code&gt;Gene.chromosome.gene.length&lt;/code&gt;, stores the following information.&lt;/p&gt;
 
 &lt;ul&gt;
+  &lt;li&gt;‘type’ : Whether this TreeNode represents a Graphical Node or Relationship or a Property on them.&lt;/li&gt;
   &lt;li&gt;&lt;code&gt;name&lt;/code&gt; : The last component of the path, i.e. length.&lt;/li&gt;
   &lt;li&gt;&lt;code&gt;variable name&lt;/code&gt; : The one we generated using approach shown above, i.e. gene_chromosome_gene_length.&lt;/li&gt;
   &lt;li&gt;&lt;code&gt;graphical name&lt;/code&gt; : This is the name by which we refer this entity/property in the InterMine Neo4j graph. Here we keep it same as &lt;code&gt;name&lt;/code&gt;, i.e. length.&lt;/li&gt;
 &lt;/ul&gt;
+
+&lt;h2 id=&quot;clause-creation&quot;&gt;Clause Creation&lt;/h2&gt;
 
 &lt;h4 id=&quot;return-1&quot;&gt;RETURN&lt;/h4&gt;
 

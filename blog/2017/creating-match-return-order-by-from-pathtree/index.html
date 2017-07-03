@@ -133,17 +133,18 @@
 
 <p>To create the variable names, I have simply separated components in the path using an underscore instead of a dot. Also, I have converted the path string to its lower case form. For example, the TreeNode for the path <code>Gene.homologues.dataSets.name</code> will have variable name <code>gene_homologues_datasets_name</code>. This approach is fine till we don’t exceed the max length of variable name for a path.</p>
 
-<h2 id="clause-creation">Clause Creation</h2>
-
-<h4 id="some-background">Some background</h4>
+<h4 id="treenode-description">TreeNode Description</h4>
 
 <p>A TreeNode for the path <code>Gene.chromosome.gene.length</code>, stores the following information.</p>
 
 <ul>
+  <li>‘type’ : Whether this TreeNode represents a Graphical Node or Relationship or a Property on them.</li>
   <li><code>name</code> : The last component of the path, i.e. length.</li>
   <li><code>variable name</code> : The one we generated using approach shown above, i.e. gene_chromosome_gene_length.</li>
   <li><code>graphical name</code> : This is the name by which we refer this entity/property in the InterMine Neo4j graph. Here we keep it same as <code>name</code>, i.e. length.</li>
 </ul>
+
+<h2 id="clause-creation">Clause Creation</h2>
 
 <h4 id="return-1">RETURN</h4>
 
