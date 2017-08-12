@@ -5,9 +5,85 @@
     <description>IT Student at IIIT Allahabad</description>
     <link>http://yasharmaster.github.io/</link>
     <atom:link href="http://yasharmaster.github.io/feed.xml" rel="self" type="application/rss+xml"/>
-    <pubDate>Tue, 01 Aug 2017 21:42:12 +0530</pubDate>
-    <lastBuildDate>Tue, 01 Aug 2017 21:42:12 +0530</lastBuildDate>
+    <pubDate>Sat, 12 Aug 2017 21:33:05 +0530</pubDate>
+    <lastBuildDate>Sat, 12 Aug 2017 21:33:05 +0530</lastBuildDate>
     <generator>Jekyll v3.1.1</generator>
+    
+      <item>
+        <title>Documenting InterMine-Neo4j API with Swagger UI</title>
+        <description>&lt;p&gt;This post talks about InterMine-Neo4j API and its Swagger integration.&lt;/p&gt;
+
+&lt;h2 id=&quot;background&quot;&gt;Background&lt;/h2&gt;
+
+&lt;p&gt;In the past blog posts I described that we have decided to query InterMine Neo4j Graph using Cypher and how I am going to convert PathQuery to Cypher. To expose the Neo4j Query Service, it was decided to keep the API endpoints and response &lt;em&gt;same as the InterMine API service&lt;/em&gt; so that BlueGenes can be configured to work with it easily at later stages.&lt;/p&gt;
+
+&lt;h2 id=&quot;swagger-ui&quot;&gt;Swagger UI&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://swagger.io/swagger-ui/&quot;&gt;Swagger UI&lt;/a&gt; is a popular API documenting tool using which anyone can &lt;em&gt;visualize and interact with your API’s resources&lt;/em&gt; without having any of the implementation logic in place. It’s &lt;em&gt;automatically generated from your Swagger specification&lt;/em&gt;, with the visual documentation making it easy for back end implementation and client side consumption.&lt;/p&gt;
+
+&lt;h2 id=&quot;intermine-neo4j-api&quot;&gt;InterMine-Neo4j API&lt;/h2&gt;
+
+&lt;p&gt;The API is developed using &lt;a href=&quot;https://jersey.github.io/&quot;&gt;Jersey&lt;/a&gt; framework which provides support for JAX-RS APIs in Java. The code can be found is &lt;em&gt;intermine-neo4jwebapp&lt;/em&gt; sub-project in the &lt;a href=&quot;https://github.com/intermine/neo4j&quot;&gt;intermine/neo4j&lt;/a&gt; repository.&lt;/p&gt;
+
+&lt;p&gt;You can play with the InterMine-Neo4j API via Swagger UI at &lt;a href=&quot;http://intermine-neo4jwebapp.herokuapp.com/&quot;&gt;intermine-neo4jwebapp.herokuapp.com&lt;/a&gt;. There are two endpoints in the API so far,&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;code&gt;query/cypher&lt;/code&gt; - This returns the Cypher equivalent of any Path Query.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;code&gt;query/results&lt;/code&gt; - This endpoint returns the results of a Path Query by converting it into Cypher and running that Cypher against InterMine-Neo4j Graph.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;integrating-api-with-swagger&quot;&gt;Integrating API with Swagger&lt;/h2&gt;
+
+&lt;p&gt;Documenting InterMine-Neo4j API with Swagger involves the following steps.&lt;/p&gt;
+
+&lt;h4 id=&quot;set-up-swagger-core-in-the-project&quot;&gt;Set up swagger-core in the project.&lt;/h4&gt;
+
+&lt;p&gt;I used &lt;a href=&quot;https://github.com/swagger-api/swagger-core/wiki/Swagger-Core-Jersey-2.X-Project-Setup-1.5&quot;&gt;Swagger Core Jersey 2.X Project Setup 1.5&lt;/a&gt; guide to add swagger-core to the projects. The information given in this guide is as per Maven projects. As we use Gradle as the build tool at InterMine, I had to do add dependencies differently. The other steps remain more or less the same.&lt;/p&gt;
+
+&lt;h4 id=&quot;add-annotations-to-the-code&quot;&gt;Add Annotations to the Code&lt;/h4&gt;
+
+&lt;p&gt;The next step is to add annotations to the API code. At &lt;a href=&quot;https://github.com/swagger-api/swagger-core/wiki/Annotations-1.5.X&quot;&gt;Swagger-Core Annotations&lt;/a&gt; page you can find the documentation of all the annotations available with swagger-core.&lt;/p&gt;
+
+&lt;h4 id=&quot;preview-swaggerjson&quot;&gt;Preview swagger.json&lt;/h4&gt;
+
+&lt;p&gt;If the above two steps are executed properly, you should be able to see swagger.json generated for your code at &lt;code&gt;{swagger.api.basepath}/swagger.json&lt;/code&gt;. For example, in our case, the swagger.json is generated at &lt;a href=&quot;http://intermine-neo4jwebapp.herokuapp.com/service/swagger.json&quot;&gt;http://intermine-neo4jwebapp.herokuapp.com/service/swagger.json&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h4 id=&quot;add-swagger-ui-code-to-your-project&quot;&gt;Add Swagger UI code to your project&lt;/h4&gt;
+
+&lt;p&gt;The next step is to download the Swagger UI code from the &lt;em&gt;dist&lt;/em&gt; folder in the &lt;a href=&quot;https://github.com/swagger-api/swagger-ui&quot;&gt;swagger/swagger-ui&lt;/a&gt; repository and place it in the &lt;code&gt;webapp&lt;/code&gt; folder of the project.&lt;/p&gt;
+
+&lt;h4 id=&quot;configuring-swagger-ui&quot;&gt;Configuring Swagger UI&lt;/h4&gt;
+
+&lt;p&gt;Among all the files that are downloaded in the previous step, we need to configure &lt;code&gt;index.html&lt;/code&gt;. We need to update the &lt;code&gt;url&lt;/code&gt; property in the &lt;code&gt;&amp;lt;script&amp;gt;&lt;/code&gt; tag at the end of this file by pasting the link to our generated &lt;code&gt;swagger.json&lt;/code&gt; file.&lt;/p&gt;
+
+&lt;p&gt;After following all the steps properly, you should be able to see the generated Swagger Documentation of the API. :)&lt;/p&gt;
+
+&lt;p&gt;Feel free to checkout Swagger UI of InterMine Neo4j API at &lt;a href=&quot;http://intermine-neo4jwebapp.herokuapp.com/&quot;&gt;http://intermine-neo4jwebapp.herokuapp.com/&lt;/a&gt; and stay tuned for more updates.&lt;/p&gt;
+</description>
+        <pubDate>Thu, 10 Aug 2017 13:30:00 +0530</pubDate>
+        <link>http://yasharmaster.github.io/blog/2017/documenting-intermine-neo4j-api-with-swagger/</link>
+        <guid isPermaLink="true">http://yasharmaster.github.io/blog/2017/documenting-intermine-neo4j-api-with-swagger/</guid>
+        
+        <category>intermine</category>
+        
+        <category>neo4j</category>
+        
+        <category>gradle</category>
+        
+        <category>gsoc</category>
+        
+        <category>jersey</category>
+        
+        <category>swagger</category>
+        
+        
+        <category>gsoc</category>
+        
+      </item>
     
       <item>
         <title>Creating Match, Return, Order By clauses From a PathTree</title>
