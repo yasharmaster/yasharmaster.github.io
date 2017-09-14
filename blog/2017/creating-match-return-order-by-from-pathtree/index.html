@@ -152,14 +152,22 @@
 
 <p>The return clause always starts with the <em>RETURN</em> keyword. After that, for each view in the PathQuery, we add an expression separated by commas. The expression consists of the variable name and the respective graphical name.</p>
 
-<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">private</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">createReturnClause</span><span class="o">(</span><span class="n">Query</span> <span class="n">query</span><span class="o">,</span> <span class="n">PathTree</span> <span class="n">pathTree</span><span class="o">,</span> <span class="n">PathQuery</span> <span class="n">pathQuery</span><span class="o">)</span> <span class="o">{</span>
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="cm">/**</span>
+<span class="cm"> * Creates RETURN clause of the Cypher Query using the Path Query and Path Tree</span>
+<span class="cm"> *</span>
+<span class="cm"> * @param cypherQuery     the Cypher Query object</span>
+<span class="cm"> * @param pathTree  the given PathTree</span>
+<span class="cm"> * @param pathQuery the given PathQuery</span>
+<span class="cm"> */</span>
+<span class="kd">private</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">createReturnClause</span><span class="o">(</span><span class="n">CypherQuery</span> <span class="n">cypherQuery</span><span class="o">,</span> <span class="n">PathTree</span> <span class="n">pathTree</span><span class="o">,</span> <span class="n">PathQuery</span> <span class="n">pathQuery</span><span class="o">)</span> <span class="o">{</span>
     <span class="k">for</span> <span class="o">(</span><span class="n">String</span> <span class="n">path</span> <span class="o">:</span> <span class="n">pathQuery</span><span class="o">.</span><span class="na">getView</span><span class="o">())</span> <span class="o">{</span>
         <span class="n">TreeNode</span> <span class="n">treeNode</span> <span class="o">=</span> <span class="n">pathTree</span><span class="o">.</span><span class="na">getTreeNode</span><span class="o">(</span><span class="n">path</span><span class="o">);</span>
-        <span class="k">if</span> <span class="o">(</span><span class="n">treeNode</span><span class="o">.</span><span class="na">getTreeNodeType</span><span class="o">()</span> <span class="o">==</span> <span class="n">TreeNodeType</span><span class="o">.</span><span class="na">PROPERTY</span><span class="o">)</span> <span class="o">{</span>
-            <span class="c1">// Return ONLY IF a property is queried !!</span>
-            <span class="n">query</span><span class="o">.</span><span class="na">addToReturn</span><span class="o">(</span><span class="n">treeNode</span><span class="o">.</span><span class="na">getParent</span><span class="o">().</span><span class="na">getVariableName</span><span class="o">()</span> <span class="o">+</span> 
-        					<span class="s">&quot;.&quot;</span> <span class="o">+</span> 
-        					<span class="n">treeNode</span><span class="o">.</span><span class="na">getGraphicalName</span><span class="o">());</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">treeNode</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="n">treeNode</span><span class="o">.</span><span class="na">getTreeNodeType</span><span class="o">()</span> <span class="o">==</span> <span class="n">TreeNodeType</span><span class="o">.</span><span class="na">PROPERTY</span><span class="o">)</span> <span class="o">{</span>
+            <span class="c1">// Add to return clause ONLY IF the TreeNode represents a property !!</span>
+            <span class="c1">// Nodes &amp; Relationships cannot be returned.</span>
+            <span class="n">cypherQuery</span><span class="o">.</span><span class="na">addToReturn</span><span class="o">(</span><span class="n">treeNode</span><span class="o">.</span><span class="na">getParent</span><span class="o">().</span><span class="na">getVariableName</span><span class="o">()</span>
+                                    <span class="o">+</span> <span class="s">&quot;.&quot;</span>
+                                    <span class="o">+</span> <span class="n">treeNode</span><span class="o">.</span><span class="na">getGraphicalName</span><span class="o">());</span>
         <span class="o">}</span>
     <span class="o">}</span>
 <span class="o">}</span></code></pre></figure>
@@ -168,29 +176,20 @@
 
 <p>The order by clause always starts with the <em>ORDER BY</em> keyword. After that, we simply append the variable name and the respective graphical name for each <code>sortOrder's</code> path of the PathQuery. The sort type (Ascending/Descending) is also added.</p>
 
-<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="c1">// The method that creates the order by clause</span>
-<span class="kd">private</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">createOrderByClause</span><span class="o">(</span><span class="n">Query</span> <span class="n">query</span><span class="o">,</span> <span class="n">PathTree</span> <span class="n">pathTree</span><span class="o">,</span> <span class="n">PathQuery</span> <span class="n">pathQuery</span><span class="o">)</span> <span class="o">{</span>
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="cm">/**</span>
+<span class="cm"> * Generates Order objects from the Path Query and adds them to the Cypher Query.</span>
+<span class="cm"> * These will be used to create the Order By clause within the CypherQuery class.</span>
+<span class="cm"> *</span>
+<span class="cm"> * @param cypherQuery     the Cypher Query object</span>
+<span class="cm"> * @param pathTree  the given PathTree</span>
+<span class="cm"> * @param pathQuery the given PathQuery</span>
+<span class="cm"> */</span>
+<span class="kd">private</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">addOrdersToCypher</span><span class="o">(</span><span class="n">CypherQuery</span> <span class="n">cypherQuery</span><span class="o">,</span> <span class="n">PathTree</span> <span class="n">pathTree</span><span class="o">,</span> <span class="n">PathQuery</span> <span class="n">pathQuery</span><span class="o">)</span> <span class="o">{</span>
     <span class="n">List</span><span class="o">&lt;</span><span class="n">OrderElement</span><span class="o">&gt;</span> <span class="n">orderElements</span> <span class="o">=</span> <span class="n">pathQuery</span><span class="o">.</span><span class="na">getOrderBy</span><span class="o">();</span>
     <span class="k">for</span> <span class="o">(</span><span class="n">OrderElement</span> <span class="n">orderElement</span> <span class="o">:</span> <span class="n">orderElements</span><span class="o">)</span> <span class="o">{</span>
         <span class="n">Order</span> <span class="n">order</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">Order</span><span class="o">(</span><span class="n">orderElement</span><span class="o">,</span> <span class="n">pathTree</span><span class="o">);</span>
-        <span class="n">query</span><span class="o">.</span><span class="na">addToOrderBy</span><span class="o">(</span><span class="n">order</span><span class="o">.</span><span class="na">toString</span><span class="o">());</span>
+        <span class="n">cypherQuery</span><span class="o">.</span><span class="na">addOrder</span><span class="o">(</span><span class="n">order</span><span class="o">);</span>
     <span class="o">}</span>
-<span class="o">}</span>
-
-<span class="c1">// Constructor of the order class</span>
-<span class="n">Order</span><span class="o">(</span><span class="n">OrderElement</span> <span class="n">orderElement</span><span class="o">,</span> <span class="n">PathTree</span> <span class="n">pathTree</span><span class="o">){</span>
-    <span class="n">TreeNode</span> <span class="n">treeNode</span> <span class="o">=</span> <span class="n">pathTree</span><span class="o">.</span><span class="na">getTreeNode</span><span class="o">(</span><span class="n">orderElement</span><span class="o">.</span><span class="na">getOrderPath</span><span class="o">());</span>
-    <span class="n">propertyKey</span> <span class="o">=</span> <span class="n">treeNode</span><span class="o">.</span><span class="na">getGraphicalName</span><span class="o">();</span>
-    <span class="c1">// Store variableName of parent TreeNode</span>
-    <span class="n">variableName</span> <span class="o">=</span> <span class="n">treeNode</span><span class="o">.</span><span class="na">getParent</span><span class="o">().</span><span class="na">getVariableName</span><span class="o">();</span>
-    <span class="n">direction</span> <span class="o">=</span> <span class="n">orderElement</span><span class="o">.</span><span class="na">getDirection</span><span class="o">().</span><span class="na">toString</span><span class="o">();</span>
-<span class="o">}</span>
-
-<span class="c1">// String representation of the order class object</span>
-<span class="kd">public</span> <span class="n">String</span> <span class="nf">toString</span><span class="o">()</span> <span class="o">{</span>
-    <span class="k">return</span> <span class="n">variableName</span> <span class="o">+</span> <span class="s">&quot;.&quot;</span> <span class="o">+</span>
-            <span class="n">propertyKey</span> <span class="o">+</span> <span class="s">&quot; &quot;</span> <span class="o">+</span>
-            <span class="n">direction</span><span class="o">;</span>
 <span class="o">}</span></code></pre></figure>
 
 <h4 id="match-1">Match</h4>
@@ -199,39 +198,98 @@
 
 <p>The <code>createMatchClause()</code> recursive method takes in the <code>Query</code> object and the root <code>TreeNode</code> as parameters. The following code snippet shows the method in action.</p>
 
-<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="kd">private</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">createMatchClause</span><span class="o">(</span><span class="n">Query</span> <span class="n">query</span><span class="o">,</span> <span class="n">TreeNode</span> <span class="n">treeNode</span><span class="o">)</span> <span class="o">{</span>
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="cm">/**</span>
+<span class="cm"> * Creates MATCH clause of the Cypher Query using the given PathTree</span>
+<span class="cm"> *</span>
+<span class="cm"> * @param cypherQuery    the Cypher Query object</span>
+<span class="cm"> * @param treeNode the root node of the PathTree</span>
+<span class="cm"> */</span>
+<span class="kd">private</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">createMatchClause</span><span class="o">(</span><span class="n">CypherQuery</span> <span class="n">cypherQuery</span><span class="o">,</span> <span class="n">TreeNode</span> <span class="n">treeNode</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span><span class="o">,</span> <span class="n">ModelParserException</span><span class="o">,</span> <span class="n">SAXException</span><span class="o">,</span> <span class="n">ParserConfigurationException</span> <span class="o">{</span>
     <span class="k">if</span> <span class="o">(</span><span class="n">treeNode</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">IllegalArgumentException</span><span class="o">(</span><span class="s">&quot;Root node of PathTree cannot be null.&quot;</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="k">else</span> <span class="nf">if</span> <span class="o">(</span><span class="n">treeNode</span><span class="o">.</span><span class="na">getTreeNodeType</span><span class="o">()</span> <span class="o">==</span> <span class="n">TreeNodeType</span><span class="o">.</span><span class="na">PROPERTY</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// Properties don&#39;t need to be matched in the Match statement of cypher.</span>
         <span class="k">return</span><span class="o">;</span>
     <span class="o">}</span>
     <span class="k">else</span> <span class="nf">if</span> <span class="o">(</span><span class="n">treeNode</span><span class="o">.</span><span class="na">getParent</span><span class="o">()</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
         <span class="c1">// Root TreeNode is always a Graph Node</span>
-        <span class="n">query</span><span class="o">.</span><span class="na">addToMatch</span><span class="o">(</span><span class="s">&quot;(&quot;</span> <span class="o">+</span> <span class="n">treeNode</span><span class="o">.</span><span class="na">getVariableName</span><span class="o">()</span> <span class="o">+</span>
+        <span class="n">cypherQuery</span><span class="o">.</span><span class="na">addToMatch</span><span class="o">(</span><span class="s">&quot;(&quot;</span> <span class="o">+</span> <span class="n">treeNode</span><span class="o">.</span><span class="na">getVariableName</span><span class="o">()</span> <span class="o">+</span>
                          <span class="s">&quot; :&quot;</span> <span class="o">+</span> <span class="n">treeNode</span><span class="o">.</span><span class="na">getGraphicalName</span><span class="o">()</span> <span class="o">+</span> <span class="s">&quot;)&quot;</span><span class="o">);</span>
     <span class="o">}</span>
-    <span class="k">else</span> <span class="nf">if</span> <span class="o">(</span><span class="n">treeNode</span><span class="o">.</span><span class="na">getTreeNodeType</span><span class="o">()</span> <span class="o">==</span> <span class="n">TreeNodeType</span><span class="o">.</span><span class="na">NODE</span><span class="o">)</span> <span class="o">{</span>
-        <span class="k">if</span> <span class="o">(</span><span class="n">treeNode</span><span class="o">.</span><span class="na">getParent</span><span class="o">().</span><span class="na">getTreeNodeType</span><span class="o">()</span> <span class="o">==</span> <span class="n">TreeNodeType</span><span class="o">.</span><span class="na">NODE</span><span class="o">)</span> <span class="o">{</span>
-            <span class="c1">// If current TreeNode is a Graph Node and its parent is also a Graph Node,</span>
-            <span class="c1">// then add a dummy relationship.</span>
-            <span class="n">query</span><span class="o">.</span><span class="na">addToMatch</span><span class="o">(</span><span class="s">&quot;(&quot;</span> <span class="o">+</span> <span class="n">treeNode</span><span class="o">.</span><span class="na">getParent</span><span class="o">().</span><span class="na">getVariableName</span><span class="o">()</span> <span class="o">+</span> <span class="s">&quot;)&quot;</span> <span class="o">+</span>
-                            <span class="s">&quot;-[]-(&quot;</span> <span class="o">+</span> <span class="n">treeNode</span><span class="o">.</span><span class="na">getVariableName</span><span class="o">()</span> <span class="o">+</span>
-                            <span class="s">&quot; :&quot;</span> <span class="o">+</span> <span class="n">treeNode</span><span class="o">.</span><span class="na">getGraphicalName</span><span class="o">()</span> <span class="o">+</span> <span class="s">&quot;)&quot;</span><span class="o">);</span>
+    <span class="k">else</span> <span class="o">{</span>
+        <span class="n">String</span> <span class="n">match</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">treeNode</span><span class="o">.</span><span class="na">getTreeNodeType</span><span class="o">()</span> <span class="o">==</span> <span class="n">TreeNodeType</span><span class="o">.</span><span class="na">NODE</span><span class="o">)</span> <span class="o">{</span>
+
+            <span class="n">Neo4jModelParser</span> <span class="n">modelParser</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">Neo4jModelParser</span><span class="o">();</span>
+            <span class="n">modelParser</span><span class="o">.</span><span class="na">process</span><span class="o">(</span><span class="k">new</span> <span class="nf">Neo4jLoaderProperties</span><span class="o">());</span>
+            <span class="n">TreeNode</span> <span class="n">parentTreeNode</span> <span class="o">=</span> <span class="n">treeNode</span><span class="o">.</span><span class="na">getParent</span><span class="o">();</span>
+
+            <span class="k">if</span> <span class="o">(</span><span class="n">parentTreeNode</span><span class="o">.</span><span class="na">getTreeNodeType</span><span class="o">()</span> <span class="o">==</span> <span class="n">TreeNodeType</span><span class="o">.</span><span class="na">NODE</span><span class="o">)</span> <span class="o">{</span>
+                <span class="c1">// If current TreeNode is a NODE and its parent is also a NODE, then use</span>
+                <span class="c1">// ModelParser.getRelationshipType to fetch the Relationship Type from the</span>
+                <span class="c1">// XML data model file.</span>
+                <span class="n">String</span> <span class="n">className</span> <span class="o">=</span> <span class="n">parentTreeNode</span><span class="o">.</span><span class="na">getPath</span><span class="o">().</span><span class="na">getEndClassDescriptor</span><span class="o">().</span><span class="na">getSimpleName</span><span class="o">();</span>
+                <span class="n">String</span> <span class="n">refName</span> <span class="o">=</span> <span class="n">treeNode</span><span class="o">.</span><span class="na">getName</span><span class="o">();</span>
+
+                <span class="n">String</span> <span class="n">relationshipType</span> <span class="o">=</span> <span class="n">modelParser</span><span class="o">.</span><span class="na">getRelationshipType</span><span class="o">(</span><span class="n">className</span><span class="o">,</span> <span class="n">refName</span><span class="o">);</span>
+                <span class="n">match</span> <span class="o">=</span> <span class="s">&quot;(&quot;</span> <span class="o">+</span>
+                        <span class="n">parentTreeNode</span><span class="o">.</span><span class="na">getVariableName</span><span class="o">()</span> <span class="o">+</span>
+                        <span class="s">&quot;)-[:&quot;</span> <span class="o">+</span>
+                        <span class="n">relationshipType</span> <span class="o">+</span>
+                        <span class="s">&quot;]-(&quot;</span> <span class="o">+</span>
+                        <span class="n">treeNode</span><span class="o">.</span><span class="na">getVariableName</span><span class="o">()</span> <span class="o">+</span>
+                        <span class="s">&quot; :&quot;</span> <span class="o">+</span>
+                        <span class="n">treeNode</span><span class="o">.</span><span class="na">getGraphicalName</span><span class="o">()</span> <span class="o">+</span>
+                        <span class="s">&quot;)&quot;</span><span class="o">;</span>
+            <span class="o">}</span>
+            <span class="k">else</span> <span class="nf">if</span> <span class="o">(</span><span class="n">parentTreeNode</span><span class="o">.</span><span class="na">getTreeNodeType</span><span class="o">()</span> <span class="o">==</span> <span class="n">TreeNodeType</span><span class="o">.</span><span class="na">RELATIONSHIP</span><span class="o">)</span> <span class="o">{</span>
+                <span class="c1">// If current TreeNode is a NODE and its parent is a RELATIONSHIP, then fetch</span>
+                <span class="c1">// the grand parent from the PathTree. Use relationship described by the parent</span>
+                <span class="c1">// TreeNode between the grand parent and the current TreeNode.</span>
+                <span class="n">match</span> <span class="o">=</span> <span class="s">&quot;(&quot;</span> <span class="o">+</span>
+                        <span class="n">parentTreeNode</span><span class="o">.</span><span class="na">getParent</span><span class="o">().</span><span class="na">getVariableName</span><span class="o">()</span> <span class="o">+</span>
+                        <span class="s">&quot;)-[&quot;</span> <span class="o">+</span>
+                        <span class="n">parentTreeNode</span><span class="o">.</span><span class="na">getVariableName</span><span class="o">()</span> <span class="o">+</span>
+                        <span class="s">&quot;:&quot;</span> <span class="o">+</span>
+                        <span class="n">parentTreeNode</span><span class="o">.</span><span class="na">getGraphicalName</span><span class="o">()</span> <span class="o">+</span>
+                        <span class="s">&quot;]-(&quot;</span> <span class="o">+</span>
+                        <span class="n">treeNode</span><span class="o">.</span><span class="na">getVariableName</span><span class="o">()</span> <span class="o">+</span>
+                        <span class="s">&quot; :&quot;</span> <span class="o">+</span>
+                        <span class="n">treeNode</span><span class="o">.</span><span class="na">getGraphicalName</span><span class="o">()</span> <span class="o">+</span>
+                        <span class="s">&quot;)&quot;</span><span class="o">;</span>
+            <span class="o">}</span>
         <span class="o">}</span>
-        <span class="k">else</span> <span class="nf">if</span> <span class="o">(</span><span class="n">treeNode</span><span class="o">.</span><span class="na">getParent</span><span class="o">().</span><span class="na">getTreeNodeType</span><span class="o">()</span> <span class="o">==</span> <span class="n">TreeNodeType</span><span class="o">.</span><span class="na">RELATIONSHIP</span><span class="o">)</span> <span class="o">{</span>
-            <span class="c1">// If current TreeNode is a Graph Node and its parent is a Graph Relationship,</span>
-            <span class="c1">// then match an actual relationship of the current node with its grand parent node.</span>
-            <span class="n">query</span><span class="o">.</span><span class="na">addToMatch</span><span class="o">(</span><span class="s">&quot;(&quot;</span> <span class="o">+</span> <span class="n">treeNode</span><span class="o">.</span><span class="na">getParent</span><span class="o">().</span><span class="na">getParent</span><span class="o">().</span><span class="na">getVariableName</span><span class="o">()</span> <span class="o">+</span> <span class="s">&quot;)&quot;</span> <span class="o">+</span>
-                            <span class="s">&quot;-[&quot;</span> <span class="o">+</span> <span class="n">treeNode</span><span class="o">.</span><span class="na">getParent</span><span class="o">().</span><span class="na">getVariableName</span><span class="o">()</span> <span class="o">+</span>
-                            <span class="s">&quot;:&quot;</span> <span class="o">+</span> <span class="n">treeNode</span><span class="o">.</span><span class="na">getParent</span><span class="o">().</span><span class="na">getGraphicalName</span><span class="o">()</span> <span class="o">+</span> <span class="s">&quot;]&quot;</span> <span class="o">+</span>
-                            <span class="s">&quot;-(&quot;</span> <span class="o">+</span> <span class="n">treeNode</span><span class="o">.</span><span class="na">getVariableName</span><span class="o">()</span> <span class="o">+</span>
-                            <span class="s">&quot; :&quot;</span> <span class="o">+</span> <span class="n">treeNode</span><span class="o">.</span><span class="na">getGraphicalName</span><span class="o">()</span> <span class="o">+</span> <span class="s">&quot;)&quot;</span><span class="o">);</span>
+        <span class="k">else</span> <span class="nf">if</span> <span class="o">(</span><span class="n">treeNode</span><span class="o">.</span><span class="na">getTreeNodeType</span><span class="o">()</span> <span class="o">==</span> <span class="n">TreeNodeType</span><span class="o">.</span><span class="na">RELATIONSHIP</span><span class="o">)</span> <span class="o">{</span>
+            <span class="c1">// If the current TreeNode is a RELATIONSHIP and it has no children, then</span>
+            <span class="c1">// use this relationship between the NODE represented by the parent TreeNode</span>
+            <span class="c1">// and an empty node. For example, (m:Gene)-[r:LOCATED_ON]-().</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">treeNode</span><span class="o">.</span><span class="na">getChildrenKeys</span><span class="o">().</span><span class="na">isEmpty</span><span class="o">())</span> <span class="o">{</span>
+                <span class="n">TreeNode</span> <span class="n">parentTreeNode</span> <span class="o">=</span> <span class="n">treeNode</span><span class="o">.</span><span class="na">getParent</span><span class="o">();</span>
+                <span class="n">match</span> <span class="o">=</span> <span class="s">&quot;(&quot;</span> <span class="o">+</span>
+                        <span class="n">parentTreeNode</span><span class="o">.</span><span class="na">getVariableName</span><span class="o">()</span> <span class="o">+</span>
+                        <span class="s">&quot;)-[&quot;</span> <span class="o">+</span>
+                        <span class="n">treeNode</span><span class="o">.</span><span class="na">getVariableName</span><span class="o">()</span> <span class="o">+</span>
+                        <span class="s">&quot;:&quot;</span> <span class="o">+</span>
+                        <span class="n">treeNode</span><span class="o">.</span><span class="na">getGraphicalName</span><span class="o">()</span> <span class="o">+</span>
+                        <span class="s">&quot;]-()&quot;</span><span class="o">;</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">match</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="c1">// If string is not null then any of the above 3 cases has occurred,</span>
+            <span class="c1">// so we must add it to MATCH or OPTIONAL MATCH clause as required.</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">treeNode</span><span class="o">.</span><span class="na">getOuterJoinStatus</span><span class="o">()</span> <span class="o">==</span> <span class="n">OuterJoinStatus</span><span class="o">.</span><span class="na">INNER</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">cypherQuery</span><span class="o">.</span><span class="na">addToMatch</span><span class="o">(</span><span class="n">match</span><span class="o">);</span>
+            <span class="o">}</span>
+            <span class="k">else</span> <span class="o">{</span>
+                <span class="n">cypherQuery</span><span class="o">.</span><span class="na">addToOptionalMatch</span><span class="o">(</span><span class="n">match</span><span class="o">);</span>
+            <span class="o">}</span>
         <span class="o">}</span>
     <span class="o">}</span>
-    <span class="c1">// If current TreeNode represents a Graphical Relationship, then Do nothing.</span>
-    <span class="c1">// We will match this relationship when recursion reaches its children.</span>
 
-    <span class="c1">// Add all children to Match clause</span>
+    <span class="c1">// Recursively add all the children TreeNodes to the Match/Optional Match clause</span>
     <span class="k">for</span> <span class="o">(</span><span class="n">String</span> <span class="n">key</span> <span class="o">:</span> <span class="n">treeNode</span><span class="o">.</span><span class="na">getChildrenKeys</span><span class="o">())</span> <span class="o">{</span>
-        <span class="n">createMatchClause</span><span class="o">(</span><span class="n">query</span><span class="o">,</span> <span class="n">treeNode</span><span class="o">.</span><span class="na">getChild</span><span class="o">(</span><span class="n">key</span><span class="o">));</span>
+        <span class="n">createMatchClause</span><span class="o">(</span><span class="n">cypherQuery</span><span class="o">,</span> <span class="n">treeNode</span><span class="o">.</span><span class="na">getChild</span><span class="o">(</span><span class="n">key</span><span class="o">));</span>
     <span class="o">}</span>
 <span class="o">}</span></code></pre></figure>
 
