@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Metadata in Neo4j &#8211; Yash Sharma</title>
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    <link rel="dns-prefetch" href="//fonts.gstatic.com">
+    <link rel="dns-prefetch" href="//maxcdn.bootstrapcdn.com">
+    <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Yash Sharma is a Final Year Student at IIIT Allahabad.">
+    <meta name="robots" content="all">
+    <meta name="author" content="Yash Sharma">
+    
+    <meta name="keywords" content="gsoc">
+    <link rel="canonical" href="http://localhost:4000/gsoc/2017/06/11/metadata-in-neo4j/">
+    <link rel="alternate" type="application/rss+xml" title="RSS Feed for Yash Sharma" href="/feed.xml" />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/pixyll.css?201903170039" type="text/css">
+
+    <!-- Fonts -->
+    
+    <link href='//fonts.googleapis.com/css?family=Merriweather:900,900italic,300,300italic' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Lato:900,300' rel='stylesheet' type='text/css'>
+    
+    
+
+    <!-- MathJax -->
+    
+
+    <!-- Verifications -->
+    
+    
+
+    <!-- Open Graph -->
+    <!-- From: https://github.com/mmistakes/hpstr-jekyll-theme/blob/master/_includes/head.html -->
+    <meta property="og:locale" content="en_US">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Metadata in Neo4j">
+    <meta property="og:description" content="Yash Sharma is a Final Year Student at IIIT Allahabad.">
+    <meta property="og:url" content="http://localhost:4000/gsoc/2017/06/11/metadata-in-neo4j/">
+    <meta property="og:site_name" content="Yash Sharma">
+    
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary" />
+    
+        <meta name="twitter:site" content="@yasharmaster" />
+        <meta name="twitter:creator" content="@yasharmaster" />
+    
+    <meta name="twitter:title" content="Metadata in Neo4j" />
+    <meta name="twitter:description" content="Yash Sharma is a Final Year Student at IIIT Allahabad." />
+    <meta name="twitter:url" content="http://localhost:4000/gsoc/2017/06/11/metadata-in-neo4j/" />
+    
+
+    <!-- Icons -->
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png">
+    <link rel="icon" type="image/png" href="/favicon-192x192.png" sizes="192x192">
+    <link rel="icon" type="image/png" href="/favicon-160x160.png" sizes="160x160">
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+    <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+    <link rel="shortcut icon" href="/favicon.ico">
+
+    
+</head>
+
+<body class="site">
+  
+	
+
+  <div class="site-wrap">
+    <header class="site-header px2 px-responsive">
+  <div class="mt2 wrap">
+    <div class="measure">
+      <a href="/" class="site-title">Yash Sharma</a>
+      <nav class="site-nav">
+        
+
+
+
+    
+    
+    
+    
+        <a class="nav-link" href="/about/">About</a>
+    
+
+    
+
+    
+    
+    
+    
+        <a class="nav-link" href="/contact/">Say Hello</a>
+    
+
+    
+
+    
+    
+    
+    
+
+    
+
+
+      </nav>
+      <div class="clearfix"></div>
+      
+    </div>
+  </div>
+</header>
+
+
+    <div class="post p2 p-responsive wrap" role="main">
+      <div class="measure">
+        
+
+
+<div class="post-header mb2">
+  <h1>Metadata in Neo4j</h1>
+  <span class="post-meta">Jun 11, 2017</span><br>
+  
+  <span class="post-meta small">
+  
+    4 minute read
+  
+  </span>
+</div>
+
+<article class="post-content">
+  <p>This post describes how the Metagraph is used to store the schema in the Neo4j database.</p>
+
+<h2 id="introduction">Introduction</h2>
+
+<p><a href="http://intermine.org/">InterMine</a>, as a data warehousing system, stores biological data which is loaded from various data sources. It is imperative to ensure that the loaded data conforms to the existing schema/model so as to maintain the data integrity.</p>
+
+<p>Presently the data model in InterMine is stored in an external <a href="https://github.com/intermine/intermine/blob/dev/bio/core/core.xml">XML file</a>. For each entity, its attributes, references and collections are stored in this XML file. For example, a part of the file which has the BioEntity model looks like this.</p>
+
+<figure class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;class</span> <span class="na">name=</span><span class="s">"BioEntity"</span> <span class="na">is-interface=</span><span class="s">"true"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;attribute</span> <span class="na">name=</span><span class="s">"primaryIdentifier"</span> <span class="na">type=</span><span class="s">"java.lang.String"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;attribute</span> <span class="na">name=</span><span class="s">"secondaryIdentifier"</span> <span class="na">type=</span><span class="s">"java.lang.String"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;attribute</span> <span class="na">name=</span><span class="s">"symbol"</span> <span class="na">type=</span><span class="s">"java.lang.String"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;attribute</span> <span class="na">name=</span><span class="s">"name"</span> <span class="na">type=</span><span class="s">"java.lang.String"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;reference</span> <span class="na">name=</span><span class="s">"organism"</span> <span class="na">referenced-type=</span><span class="s">"Organism"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;collection</span> <span class="na">name=</span><span class="s">"locatedFeatures"</span> <span class="na">referenced-type=</span><span class="s">"Location"</span> <span class="na">reverse-reference=</span><span class="s">"locatedOn"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;collection</span> <span class="na">name=</span><span class="s">"locations"</span> <span class="na">referenced-type=</span><span class="s">"Location"</span> <span class="na">reverse-reference=</span><span class="s">"feature"</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;collection</span> <span class="na">name=</span><span class="s">"ontologyAnnotations"</span> <span class="na">referenced-type=</span><span class="s">"OntologyAnnotation"</span> <span class="na">reverse-reference=</span><span class="s">"subject"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;collection</span> <span class="na">name=</span><span class="s">"synonyms"</span> <span class="na">referenced-type=</span><span class="s">"Synonym"</span> <span class="na">reverse-reference=</span><span class="s">"subject"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;collection</span> <span class="na">name=</span><span class="s">"dataSets"</span> <span class="na">referenced-type=</span><span class="s">"DataSet"</span> <span class="na">reverse-reference=</span><span class="s">"bioEntities"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;collection</span> <span class="na">name=</span><span class="s">"publications"</span> <span class="na">referenced-type=</span><span class="s">"Publication"</span> <span class="na">reverse-reference=</span><span class="s">"bioEntities"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;collection</span> <span class="na">name=</span><span class="s">"crossReferences"</span> <span class="na">referenced-type=</span><span class="s">"CrossReference"</span> <span class="na">reverse-reference=</span><span class="s">"subject"</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;/class&gt;</span></code></pre></figure>
+
+<p>While developing Neo4j prototype of InterMine, to reduce the dependency on external files, it was decided to store the schema in the database itself. Neo4j being a graph database stores data in the form of Nodes and directed Relationships. This brought up two issues:</p>
+
+<ol>
+  <li>
+    <p>The data model must to be in the form of a graph itself so that it can be stored in the Neo4j database.</p>
+  </li>
+  <li>
+    <p>The data model should represent all the existing Nodes in the database and the Relationships among them.</p>
+  </li>
+</ol>
+
+<p>Since the data model is a graph and it stores information about the InterMine graph, it can be called a metagraph.</p>
+
+<h2 id="metagraph-structure">Metagraph Structure</h2>
+
+<p>Each node in the metagraph is assigned <code class="highlighter-rouge">:Metagraph</code> label. All the metagraph nodes are further classified into two types, NodeType and RelType. As the name suggests, each NodeType node represents a specific type of nodes and each RelType node represents a specific type of relationship in the IM graph. So each node has either <code class="highlighter-rouge">:NodeType</code> or <code class="highlighter-rouge">:RelType</code> label depending on which entity it represents.</p>
+
+<h4 id="nodetype">NodeType</h4>
+
+<p>A metagraph node labelled <code class="highlighter-rouge">:NodeType</code> contains following two properties.</p>
+
+<ol>
+  <li>
+    <p><strong>labels</strong> - A list containing the labels of the nodes that are represented by the <code class="highlighter-rouge">:NodeType</code> node. For example, [“Gene”,”SequenceFeature”,”BioEntity”].</p>
+  </li>
+  <li>
+    <p><strong>keys</strong> - A list containing the keys of all the properties exist amongst the nodes that are represented by the <code class="highlighter-rouge">:NodeType</code> node. For example, [“primaryIdentifier”, “secondaryIdentifier”, “symbol”].</p>
+  </li>
+</ol>
+
+<p>Each <code class="highlighter-rouge">:NodeType</code> node is uniquely identified by its labels property. So, for all the nodes in the IM graph which are labelled <code class="highlighter-rouge">:Gene</code>, <code class="highlighter-rouge">:SequenceFeature</code>, <code class="highlighter-rouge">:BioEntity</code>, there exists one <code class="highlighter-rouge">:NodeType</code> node in the metagraph which has its labels property set as [“Gene”,”SequenceFeature”,”BioEntity”].</p>
+
+<h4 id="reltype">RelType</h4>
+
+<p>A metagraph node labelled <code class="highlighter-rouge">:RelType</code> contains following two properties.</p>
+
+<ol>
+  <li>
+    <p><strong>type</strong> - A string denoting the <code class="highlighter-rouge">type</code> of the relationships that are represented by the <code class="highlighter-rouge">:RelType</code> node. For example, “HOMOLOGUE_OF”.</p>
+  </li>
+  <li>
+    <p><strong>keys</strong> - A list containing the keys of all the properties exist amongst the relationships that are represented by the <code class="highlighter-rouge">:RelType</code> node. For example, [“DataSet”].</p>
+  </li>
+</ol>
+
+<p>Each <code class="highlighter-rouge">:RelType</code> node is uniquely identified by its type property. So, for all the relationships of type HOMOLOGUE_OF in the IM graph, there exists one <code class="highlighter-rouge">:RelType</code> node in the metagraph which has its type property set as “HOMOLOGUE_OF”.</p>
+
+<h4 id="relationships-in-metagraph">Relationships in MetaGraph</h4>
+
+<p>Metagraph should not only contain information about the properties of various entities in the IM graph but it should also store how different types of nodes are connected to each other. To represent this information, we make use of Neo4j relationships.</p>
+
+<p>We know that each <code class="highlighter-rouge">:RelType</code> node represents a type of relationships that exist in the IM graph. Now, we create two outgoing relationships/edges from each <code class="highlighter-rouge">:RelType</code> node - <code class="highlighter-rouge">:StartNodeType</code> and <code class="highlighter-rouge">:EndNodeType</code>. These edges end on a <code class="highlighter-rouge">:NodeType</code> node.</p>
+
+<p>Thus the metagraph path <code class="highlighter-rouge">(a:RelType)-[:StartNodeType]-&gt;(b:NodeType)</code> shows that the relationships represented by node <code class="highlighter-rouge">a</code> starts from the nodes represented by the node <code class="highlighter-rouge">b</code>. Same case follows for <code class="highlighter-rouge">:EndNodeType</code>.</p>
+
+<p><img src="/images/metagraph.jpg" alt="Metagraph" /></p>
+
+<h2 id="generating-metagraph">Generating MetaGraph</h2>
+
+<h4 id="representing-nodes">Representing Nodes</h4>
+
+<p>The following Cypher query, creates <code class="highlighter-rouge">:NodeType</code> nodes for all the nodes that exist in the IM graph.</p>
+
+<figure class="highlight"><pre><code class="language-cypher" data-lang="cypher">MATCH (n)
+WHERE NOT n:Metagraph AND size(labels(n))&gt;0
+WITH labels(n) as LABELS, keys(n) as KEYS
+MERGE (m:Metagraph:NodeType {labels: LABELS})
+SET m.properties =
+CASE m.properties
+	WHEN NULL THEN KEYS
+    ELSE apoc.coll.union(m.properties, KEYS)
+END</code></pre></figure>
+
+<h4 id="representing-relationships">Representing Relationships</h4>
+
+<p>The following Cypher query, creates <code class="highlighter-rouge">:RelType</code> nodes for all the relationships that exist in the IM graph. It also connects them to the <code class="highlighter-rouge">:NodeType</code> nodes with <code class="highlighter-rouge">:StartNodeType</code> and <code class="highlighter-rouge">:EndNodeType</code> relationships.</p>
+
+<figure class="highlight"><pre><code class="language-cypher" data-lang="cypher">MATCH (n)-[r]-&gt;(m)
+WHERE NOT n:Metagraph AND NOT m:Metagraph
+WITH labels(n) as start_labels, type(r) as rel_type, keys(r) as rel_keys, labels(m) as end_labels
+MERGE (a:Metagraph:NodeType {labels: start_labels})
+MERGE (b:Metagraph:NodeType {labels: end_labels})
+MERGE (rel:Metagraph:RelType {type:rel_type})
+MERGE (a)&lt;-[:StartNodeType]-(rel)-[:EndNodeType]-&gt;(b)
+SET rel.properties =
+CASE
+    WHEN rel.properties IS NULL AND rel_keys IS NULL THEN []
+    WHEN rel.properties IS NULL AND rel_keys IS NOT NULL THEN rel_keys
+    WHEN rel.properties IS NOT NULL AND rel_keys IS NULL THEN rel.properties
+    WHEN rel.properties IS NOT NULL AND rel_keys IS NOT NULL THEN apoc.coll.union(rel.properties, rel_keys)
+END</code></pre></figure>
+
+<p>Once schema is generated and stored in the database, it can be accessed by the data loader at runtime. By enforing the rules of the schema, the loader maintains data integrity while loading new data to the database. The code for generating and querying metadata in Neo4j is developed in the <a href="https://github.com/intermine/neo4j/tree/dev/src/org/intermine/neo4j/metadata">org.intermine.neo4j.metadata</a> package in <a href="https://github.com/intermine/neo4j">InterMine/Neo4j</a> repository.</p>
+
+<p>Perhaps in a later post, I will discuss the <a href="https://github.com/intermine/neo4j/tree/dev/src/org/intermine/neo4j/metadata">org.intermine.neo4j.metadata</a> package and will write a small tutorial on how you can use it generate &amp; query your own Neo4j data model. So, stay tuned!</p>
+
+</article>
+
+
+
+
+
+
+
+
+
+
+
+      </div>
+    </div>
+  </div>
+
+  <footer class="center">
+  <div class="measure">
+    <small>
+      &copy; 2019 Yash Sharma
+      </br>
+      Made with <3 in India
+    </small>
+  </div>
+</footer>
+
+<script type="text/javascript">
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js")
+    }
+</script>
+
+</body>
+</html>

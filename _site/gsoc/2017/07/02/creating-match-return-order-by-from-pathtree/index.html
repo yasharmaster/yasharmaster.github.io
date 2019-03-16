@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Creating Match, Return, Order By clauses From a PathTree &#8211; Yash Sharma</title>
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    <link rel="dns-prefetch" href="//fonts.gstatic.com">
+    <link rel="dns-prefetch" href="//maxcdn.bootstrapcdn.com">
+    <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Yash Sharma is a Final Year Student at IIIT Allahabad.">
+    <meta name="robots" content="all">
+    <meta name="author" content="Yash Sharma">
+    
+    <meta name="keywords" content="gsoc">
+    <link rel="canonical" href="http://localhost:4000/gsoc/2017/07/02/creating-match-return-order-by-from-pathtree/">
+    <link rel="alternate" type="application/rss+xml" title="RSS Feed for Yash Sharma" href="/feed.xml" />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/pixyll.css?201903170039" type="text/css">
+
+    <!-- Fonts -->
+    
+    <link href='//fonts.googleapis.com/css?family=Merriweather:900,900italic,300,300italic' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Lato:900,300' rel='stylesheet' type='text/css'>
+    
+    
+
+    <!-- MathJax -->
+    
+
+    <!-- Verifications -->
+    
+    
+
+    <!-- Open Graph -->
+    <!-- From: https://github.com/mmistakes/hpstr-jekyll-theme/blob/master/_includes/head.html -->
+    <meta property="og:locale" content="en_US">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Creating Match, Return, Order By clauses From a PathTree">
+    <meta property="og:description" content="Yash Sharma is a Final Year Student at IIIT Allahabad.">
+    <meta property="og:url" content="http://localhost:4000/gsoc/2017/07/02/creating-match-return-order-by-from-pathtree/">
+    <meta property="og:site_name" content="Yash Sharma">
+    
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary" />
+    
+        <meta name="twitter:site" content="@yasharmaster" />
+        <meta name="twitter:creator" content="@yasharmaster" />
+    
+    <meta name="twitter:title" content="Creating Match, Return, Order By clauses From a PathTree" />
+    <meta name="twitter:description" content="Yash Sharma is a Final Year Student at IIIT Allahabad." />
+    <meta name="twitter:url" content="http://localhost:4000/gsoc/2017/07/02/creating-match-return-order-by-from-pathtree/" />
+    
+
+    <!-- Icons -->
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png">
+    <link rel="icon" type="image/png" href="/favicon-192x192.png" sizes="192x192">
+    <link rel="icon" type="image/png" href="/favicon-160x160.png" sizes="160x160">
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+    <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+    <link rel="shortcut icon" href="/favicon.ico">
+
+    
+</head>
+
+<body class="site">
+  
+	
+
+  <div class="site-wrap">
+    <header class="site-header px2 px-responsive">
+  <div class="mt2 wrap">
+    <div class="measure">
+      <a href="/" class="site-title">Yash Sharma</a>
+      <nav class="site-nav">
+        
+
+
+
+    
+    
+    
+    
+        <a class="nav-link" href="/about/">About</a>
+    
+
+    
+
+    
+    
+    
+    
+        <a class="nav-link" href="/contact/">Say Hello</a>
+    
+
+    
+
+    
+    
+    
+    
+
+    
+
+
+      </nav>
+      <div class="clearfix"></div>
+      
+    </div>
+  </div>
+</header>
+
+
+    <div class="post p2 p-responsive wrap" role="main">
+      <div class="measure">
+        
+
+
+<div class="post-header mb2">
+  <h1>Creating Match, Return, Order By clauses From a PathTree</h1>
+  <span class="post-meta">Jul 2, 2017</span><br>
+  
+  <span class="post-meta small">
+  
+    7 minute read
+  
+  </span>
+</div>
+
+<article class="post-content">
+  <p>In this post I’ll describe in detail, how I created Match, Return and Order By clauses of Cypher using a PathTree. PathTree was discussed in the <a href="/blog/2017/path-query-cypher-puzzle-part-2/">previous post</a>.</p>
+
+<h2 id="description-of-clauses">Description of Clauses</h2>
+
+<h3 id="match">Match</h3>
+
+<p>Match is the very first clause in every Cypher query. It allows you to specify the patterns Neo4j will search for in the database. These patterns must be such that the data which matches them, must be the data you wish to operate (or query) on. Consider an example Match clause which matches three <em>Genes</em> such that two of them  <em>INTERACTS_WITH</em> the third one.</p>
+
+<figure class="highlight"><pre><code class="language-cypher" data-lang="cypher">MATCH (a:Gene)-[:INTERACTS_WITH]-&gt;(b:Gene)&lt;-[:INTERACTS_WITH]-(c:Gene)</code></pre></figure>
+
+<p>The pattern above is a 2-dimensional pattern which we often have to deal with, in Cypher. Although, it is easier to imagine the pattern in 2-D, we generally need to break them down into multiple 1-D patterns while writing cypher queries. Also, 1-D patterns would be easier to generate programmatically than their 2-D counterparts. For example, the following Match clause with two 1-D patterns is equivalent to the one shown above.</p>
+
+<figure class="highlight"><pre><code class="language-cypher" data-lang="cypher">MATCH (a:Gene)-[:INTERACTS_WITH]-&gt;(b:Gene),
+(c:Gene)-[:INTERACTS_WITH]-&gt;(b)</code></pre></figure>
+
+<p>Note that we could simply use the variable name <code class="highlighter-rouge">b</code> in the second pattern without specifying the Label <em>Gene</em>. It doesn’t seem very significant here but it makes generating queries very convinient while dealing with some complicated paths. Suppose you need to specify a Path/Node/Relationship again and again in the query, wouldn’t you be comfortable in just writing its variable name and get done with it?</p>
+
+<h3 id="return">Return</h3>
+
+<p>In the RETURN part of the cypher query, we define the parts of the pattern in which we are interested. It can be nodes, relationships, or properties on these.</p>
+
+<figure class="highlight"><pre><code class="language-cypher" data-lang="cypher">MATCH (a:Gene {primaryIdentifier:'WBGene00007063'})-[r:INTERACTS_WITH]-&gt;(b:Gene)
+// Following are some possbile return statements,
+RETURN b
+RETURN r
+RETURN b.primaryIdentifier
+RETURN r.dataSet</code></pre></figure>
+
+<h3 id="order-by">Order By</h3>
+
+<p>ORDER BY is a sub-clause following RETURN, and it specifies that the output should be sorted and how. For example,</p>
+
+<figure class="highlight"><pre><code class="language-cypher" data-lang="cypher">MATCH (a:Gene {primaryIdentifier:'WBGene00007063'})-[r:INTERACTS_WITH]-&gt;(b:Gene)
+RETURN b
+ORDER BY b.symbol</code></pre></figure>
+
+<p>For more information, please refer to <a href="http://neo4j.com/docs/developer-manual/current/cypher/">Neo4j Developer Manual</a>.</p>
+
+<h2 id="assigning-variable-names-to-treenodes">Assigning variable names to TreeNodes</h2>
+
+<p>We see that variable names are crucial in a Cypher query. A PathTree represents all the paths in the corresponding PathQuery. Since we can have a constraint/view/order on any path, therefore we need to assign variable name to each node of the PathTree.</p>
+
+<p><img src="/images/PathTree.png" alt="A Path Tree" /></p>
+
+<p>We cannot just use the component name as the variable name. This is because a component can be repeated in the same path. For example, in <code class="highlighter-rouge">Gene.chromosome.gene.length</code>, <code class="highlighter-rouge">gene</code> appears twice. Having a unique variable name for each TreeNode is crucial to generating the Cypher query.</p>
+
+<p>To create the variable names, I have simply separated components in the path using an underscore instead of a dot. Also, I have converted the path string to its lower case form. For example, the TreeNode for the path <code class="highlighter-rouge">Gene.homologues.dataSets.name</code> will have variable name <code class="highlighter-rouge">gene_homologues_datasets_name</code>. This approach is fine till we don’t exceed the max length of variable name for a path.</p>
+
+<h4 id="treenode-description">TreeNode Description</h4>
+
+<p>A TreeNode for the path <code class="highlighter-rouge">Gene.chromosome.gene.length</code>, stores the following information.</p>
+
+<ul>
+  <li><code class="highlighter-rouge">type</code> : Whether this TreeNode represents a Graphical Node or Relationship or a Property on them.</li>
+  <li><code class="highlighter-rouge">name</code> : The last component of the path, i.e. length.</li>
+  <li><code class="highlighter-rouge">variable name</code> : The one we generated using approach shown above, i.e. gene_chromosome_gene_length.</li>
+  <li><code class="highlighter-rouge">graphical name</code> : This is the name by which we refer this entity/property in the InterMine Neo4j graph. Here we keep it same as <code class="highlighter-rouge">name</code>, i.e. length.</li>
+</ul>
+
+<h2 id="clause-creation">Clause Creation</h2>
+
+<h4 id="return-1">RETURN</h4>
+
+<p>The return clause always starts with the <em>RETURN</em> keyword. After that, for each view in the PathQuery, we add an expression separated by commas. The expression consists of the variable name and the respective graphical name.</p>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="cm">/**
+ * Creates RETURN clause of the Cypher Query using the Path Query and Path Tree
+ *
+ * @param cypherQuery     the Cypher Query object
+ * @param pathTree  the given PathTree
+ * @param pathQuery the given PathQuery
+ */</span>
+<span class="kd">private</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">createReturnClause</span><span class="o">(</span><span class="n">CypherQuery</span> <span class="n">cypherQuery</span><span class="o">,</span> <span class="n">PathTree</span> <span class="n">pathTree</span><span class="o">,</span> <span class="n">PathQuery</span> <span class="n">pathQuery</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">for</span> <span class="o">(</span><span class="n">String</span> <span class="n">path</span> <span class="o">:</span> <span class="n">pathQuery</span><span class="o">.</span><span class="na">getView</span><span class="o">())</span> <span class="o">{</span>
+        <span class="n">TreeNode</span> <span class="n">treeNode</span> <span class="o">=</span> <span class="n">pathTree</span><span class="o">.</span><span class="na">getTreeNode</span><span class="o">(</span><span class="n">path</span><span class="o">);</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">treeNode</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="n">treeNode</span><span class="o">.</span><span class="na">getTreeNodeType</span><span class="o">()</span> <span class="o">==</span> <span class="n">TreeNodeType</span><span class="o">.</span><span class="na">PROPERTY</span><span class="o">)</span> <span class="o">{</span>
+            <span class="c1">// Add to return clause ONLY IF the TreeNode represents a property !!</span>
+            <span class="c1">// Nodes &amp; Relationships cannot be returned.</span>
+            <span class="n">cypherQuery</span><span class="o">.</span><span class="na">addToReturn</span><span class="o">(</span><span class="n">treeNode</span><span class="o">.</span><span class="na">getParent</span><span class="o">().</span><span class="na">getVariableName</span><span class="o">()</span>
+                                    <span class="o">+</span> <span class="s">"."</span>
+                                    <span class="o">+</span> <span class="n">treeNode</span><span class="o">.</span><span class="na">getGraphicalName</span><span class="o">());</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span></code></pre></figure>
+
+<h4 id="order-by-1">ORDER BY</h4>
+
+<p>The order by clause always starts with the <em>ORDER BY</em> keyword. After that, we simply append the variable name and the respective graphical name for each <code class="highlighter-rouge">sortOrder's</code> path of the PathQuery. The sort type (Ascending/Descending) is also added.</p>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="cm">/**
+ * Generates Order objects from the Path Query and adds them to the Cypher Query.
+ * These will be used to create the Order By clause within the CypherQuery class.
+ *
+ * @param cypherQuery     the Cypher Query object
+ * @param pathTree  the given PathTree
+ * @param pathQuery the given PathQuery
+ */</span>
+<span class="kd">private</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">addOrdersToCypher</span><span class="o">(</span><span class="n">CypherQuery</span> <span class="n">cypherQuery</span><span class="o">,</span> <span class="n">PathTree</span> <span class="n">pathTree</span><span class="o">,</span> <span class="n">PathQuery</span> <span class="n">pathQuery</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">List</span><span class="o">&lt;</span><span class="n">OrderElement</span><span class="o">&gt;</span> <span class="n">orderElements</span> <span class="o">=</span> <span class="n">pathQuery</span><span class="o">.</span><span class="na">getOrderBy</span><span class="o">();</span>
+    <span class="k">for</span> <span class="o">(</span><span class="n">OrderElement</span> <span class="n">orderElement</span> <span class="o">:</span> <span class="n">orderElements</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">Order</span> <span class="n">order</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Order</span><span class="o">(</span><span class="n">orderElement</span><span class="o">,</span> <span class="n">pathTree</span><span class="o">);</span>
+        <span class="n">cypherQuery</span><span class="o">.</span><span class="na">addOrder</span><span class="o">(</span><span class="n">order</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span></code></pre></figure>
+
+<h4 id="match-1">Match</h4>
+
+<p>Creation of Match clause is rather complex. The match clause always starts with the <em>MATCH</em> keyword. After that, for each edge in the PathTree we write two nodes and the relationship between them. If two adjacent TreeNodes represent Graph Nodes, then we use a dummy relationship to join them. Otherwise we add the relationship represented by the TreeNode in between.</p>
+
+<p>The <code class="highlighter-rouge">createMatchClause()</code> recursive method takes in the <code class="highlighter-rouge">Query</code> object and the root <code class="highlighter-rouge">TreeNode</code> as parameters. The following code snippet shows the method in action.</p>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="cm">/**
+ * Creates MATCH clause of the Cypher Query using the given PathTree
+ *
+ * @param cypherQuery    the Cypher Query object
+ * @param treeNode the root node of the PathTree
+ */</span>
+<span class="kd">private</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">createMatchClause</span><span class="o">(</span><span class="n">CypherQuery</span> <span class="n">cypherQuery</span><span class="o">,</span> <span class="n">TreeNode</span> <span class="n">treeNode</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span><span class="o">,</span> <span class="n">ModelParserException</span><span class="o">,</span> <span class="n">SAXException</span><span class="o">,</span> <span class="n">ParserConfigurationException</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">treeNode</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">IllegalArgumentException</span><span class="o">(</span><span class="s">"Root node of PathTree cannot be null."</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="k">else</span> <span class="nf">if</span> <span class="o">(</span><span class="n">treeNode</span><span class="o">.</span><span class="na">getTreeNodeType</span><span class="o">()</span> <span class="o">==</span> <span class="n">TreeNodeType</span><span class="o">.</span><span class="na">PROPERTY</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// Properties don't need to be matched in the Match statement of cypher.</span>
+        <span class="k">return</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="k">else</span> <span class="nf">if</span> <span class="o">(</span><span class="n">treeNode</span><span class="o">.</span><span class="na">getParent</span><span class="o">()</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// Root TreeNode is always a Graph Node</span>
+        <span class="n">cypherQuery</span><span class="o">.</span><span class="na">addToMatch</span><span class="o">(</span><span class="s">"("</span> <span class="o">+</span> <span class="n">treeNode</span><span class="o">.</span><span class="na">getVariableName</span><span class="o">()</span> <span class="o">+</span>
+                         <span class="s">" :"</span> <span class="o">+</span> <span class="n">treeNode</span><span class="o">.</span><span class="na">getGraphicalName</span><span class="o">()</span> <span class="o">+</span> <span class="s">")"</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="k">else</span> <span class="o">{</span>
+        <span class="n">String</span> <span class="n">match</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">treeNode</span><span class="o">.</span><span class="na">getTreeNodeType</span><span class="o">()</span> <span class="o">==</span> <span class="n">TreeNodeType</span><span class="o">.</span><span class="na">NODE</span><span class="o">)</span> <span class="o">{</span>
+
+            <span class="n">Neo4jModelParser</span> <span class="n">modelParser</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Neo4jModelParser</span><span class="o">();</span>
+            <span class="n">modelParser</span><span class="o">.</span><span class="na">process</span><span class="o">(</span><span class="k">new</span> <span class="n">Neo4jLoaderProperties</span><span class="o">());</span>
+            <span class="n">TreeNode</span> <span class="n">parentTreeNode</span> <span class="o">=</span> <span class="n">treeNode</span><span class="o">.</span><span class="na">getParent</span><span class="o">();</span>
+
+            <span class="k">if</span> <span class="o">(</span><span class="n">parentTreeNode</span><span class="o">.</span><span class="na">getTreeNodeType</span><span class="o">()</span> <span class="o">==</span> <span class="n">TreeNodeType</span><span class="o">.</span><span class="na">NODE</span><span class="o">)</span> <span class="o">{</span>
+                <span class="c1">// If current TreeNode is a NODE and its parent is also a NODE, then use</span>
+                <span class="c1">// ModelParser.getRelationshipType to fetch the Relationship Type from the</span>
+                <span class="c1">// XML data model file.</span>
+                <span class="n">String</span> <span class="n">className</span> <span class="o">=</span> <span class="n">parentTreeNode</span><span class="o">.</span><span class="na">getPath</span><span class="o">().</span><span class="na">getEndClassDescriptor</span><span class="o">().</span><span class="na">getSimpleName</span><span class="o">();</span>
+                <span class="n">String</span> <span class="n">refName</span> <span class="o">=</span> <span class="n">treeNode</span><span class="o">.</span><span class="na">getName</span><span class="o">();</span>
+
+                <span class="n">String</span> <span class="n">relationshipType</span> <span class="o">=</span> <span class="n">modelParser</span><span class="o">.</span><span class="na">getRelationshipType</span><span class="o">(</span><span class="n">className</span><span class="o">,</span> <span class="n">refName</span><span class="o">);</span>
+                <span class="n">match</span> <span class="o">=</span> <span class="s">"("</span> <span class="o">+</span>
+                        <span class="n">parentTreeNode</span><span class="o">.</span><span class="na">getVariableName</span><span class="o">()</span> <span class="o">+</span>
+                        <span class="s">")-[:"</span> <span class="o">+</span>
+                        <span class="n">relationshipType</span> <span class="o">+</span>
+                        <span class="s">"]-("</span> <span class="o">+</span>
+                        <span class="n">treeNode</span><span class="o">.</span><span class="na">getVariableName</span><span class="o">()</span> <span class="o">+</span>
+                        <span class="s">" :"</span> <span class="o">+</span>
+                        <span class="n">treeNode</span><span class="o">.</span><span class="na">getGraphicalName</span><span class="o">()</span> <span class="o">+</span>
+                        <span class="s">")"</span><span class="o">;</span>
+            <span class="o">}</span>
+            <span class="k">else</span> <span class="nf">if</span> <span class="o">(</span><span class="n">parentTreeNode</span><span class="o">.</span><span class="na">getTreeNodeType</span><span class="o">()</span> <span class="o">==</span> <span class="n">TreeNodeType</span><span class="o">.</span><span class="na">RELATIONSHIP</span><span class="o">)</span> <span class="o">{</span>
+                <span class="c1">// If current TreeNode is a NODE and its parent is a RELATIONSHIP, then fetch</span>
+                <span class="c1">// the grand parent from the PathTree. Use relationship described by the parent</span>
+                <span class="c1">// TreeNode between the grand parent and the current TreeNode.</span>
+                <span class="n">match</span> <span class="o">=</span> <span class="s">"("</span> <span class="o">+</span>
+                        <span class="n">parentTreeNode</span><span class="o">.</span><span class="na">getParent</span><span class="o">().</span><span class="na">getVariableName</span><span class="o">()</span> <span class="o">+</span>
+                        <span class="s">")-["</span> <span class="o">+</span>
+                        <span class="n">parentTreeNode</span><span class="o">.</span><span class="na">getVariableName</span><span class="o">()</span> <span class="o">+</span>
+                        <span class="s">":"</span> <span class="o">+</span>
+                        <span class="n">parentTreeNode</span><span class="o">.</span><span class="na">getGraphicalName</span><span class="o">()</span> <span class="o">+</span>
+                        <span class="s">"]-("</span> <span class="o">+</span>
+                        <span class="n">treeNode</span><span class="o">.</span><span class="na">getVariableName</span><span class="o">()</span> <span class="o">+</span>
+                        <span class="s">" :"</span> <span class="o">+</span>
+                        <span class="n">treeNode</span><span class="o">.</span><span class="na">getGraphicalName</span><span class="o">()</span> <span class="o">+</span>
+                        <span class="s">")"</span><span class="o">;</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+        <span class="k">else</span> <span class="nf">if</span> <span class="o">(</span><span class="n">treeNode</span><span class="o">.</span><span class="na">getTreeNodeType</span><span class="o">()</span> <span class="o">==</span> <span class="n">TreeNodeType</span><span class="o">.</span><span class="na">RELATIONSHIP</span><span class="o">)</span> <span class="o">{</span>
+            <span class="c1">// If the current TreeNode is a RELATIONSHIP and it has no children, then</span>
+            <span class="c1">// use this relationship between the NODE represented by the parent TreeNode</span>
+            <span class="c1">// and an empty node. For example, (m:Gene)-[r:LOCATED_ON]-().</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">treeNode</span><span class="o">.</span><span class="na">getChildrenKeys</span><span class="o">().</span><span class="na">isEmpty</span><span class="o">())</span> <span class="o">{</span>
+                <span class="n">TreeNode</span> <span class="n">parentTreeNode</span> <span class="o">=</span> <span class="n">treeNode</span><span class="o">.</span><span class="na">getParent</span><span class="o">();</span>
+                <span class="n">match</span> <span class="o">=</span> <span class="s">"("</span> <span class="o">+</span>
+                        <span class="n">parentTreeNode</span><span class="o">.</span><span class="na">getVariableName</span><span class="o">()</span> <span class="o">+</span>
+                        <span class="s">")-["</span> <span class="o">+</span>
+                        <span class="n">treeNode</span><span class="o">.</span><span class="na">getVariableName</span><span class="o">()</span> <span class="o">+</span>
+                        <span class="s">":"</span> <span class="o">+</span>
+                        <span class="n">treeNode</span><span class="o">.</span><span class="na">getGraphicalName</span><span class="o">()</span> <span class="o">+</span>
+                        <span class="s">"]-()"</span><span class="o">;</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">match</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="c1">// If string is not null then any of the above 3 cases has occurred,</span>
+            <span class="c1">// so we must add it to MATCH or OPTIONAL MATCH clause as required.</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">treeNode</span><span class="o">.</span><span class="na">getOuterJoinStatus</span><span class="o">()</span> <span class="o">==</span> <span class="n">OuterJoinStatus</span><span class="o">.</span><span class="na">INNER</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">cypherQuery</span><span class="o">.</span><span class="na">addToMatch</span><span class="o">(</span><span class="n">match</span><span class="o">);</span>
+            <span class="o">}</span>
+            <span class="k">else</span> <span class="o">{</span>
+                <span class="n">cypherQuery</span><span class="o">.</span><span class="na">addToOptionalMatch</span><span class="o">(</span><span class="n">match</span><span class="o">);</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="c1">// Recursively add all the children TreeNodes to the Match/Optional Match clause</span>
+    <span class="k">for</span> <span class="o">(</span><span class="n">String</span> <span class="n">key</span> <span class="o">:</span> <span class="n">treeNode</span><span class="o">.</span><span class="na">getChildrenKeys</span><span class="o">())</span> <span class="o">{</span>
+        <span class="n">createMatchClause</span><span class="o">(</span><span class="n">cypherQuery</span><span class="o">,</span> <span class="n">treeNode</span><span class="o">.</span><span class="na">getChild</span><span class="o">(</span><span class="n">key</span><span class="o">));</span>
+    <span class="o">}</span>
+<span class="o">}</span></code></pre></figure>
+
+<p>In the next post, the generation of <a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/where/">Where</a> clause will be covered. It is most complex of all because it involves converting around 30+ PathQuery contraints into their equivalend Cypher expressions.</p>
+
+</article>
+
+
+
+
+
+
+
+
+
+
+
+      </div>
+    </div>
+  </div>
+
+  <footer class="center">
+  <div class="measure">
+    <small>
+      &copy; 2019 Yash Sharma
+      </br>
+      Made with <3 in India
+    </small>
+  </div>
+</footer>
+
+<script type="text/javascript">
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js")
+    }
+</script>
+
+</body>
+</html>

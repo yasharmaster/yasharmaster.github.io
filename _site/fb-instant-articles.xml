@@ -1,0 +1,929 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title></title>
+    <link>http://localhost:4000</link>
+    <description>
+      Yash Sharma is a Final Year Student at IIIT Allahabad.
+    </description>
+    
+        
+            <item>
+                <title>Project Report - Google Summer of Code 2017</title>
+                <link>http://localhost:4000/gsoc/2017/08/29/gsoc-2017-final-report/</link>
+                <content:encoded>
+                    <![CDATA[
+                    <p>In this post I am sharing with you the <a href="https://gist.github.com/yasharmaster/cfa18e7bac00d7ed0a93d74f4946efc7">Project Report</a> that I have submitted as the work product for Google Summer of Code 2017. It summarizes all the blog posts written by me during this summer.</p>
+
+<ul>
+  <li><strong>Organisation</strong> - InterMine
+    <ul>
+      <li>Github / <a href="https://github.com/intermine">@intermine</a></li>
+      <li>Website / <a href="http://intermine.org/">InterMine.org</a></li>
+    </ul>
+  </li>
+  <li><strong>Project</strong>: Prototype a RESTful API Querying Neo4j Database</li>
+  <li><strong>Mentors</strong>:
+    <ul>
+      <li>Sam / <a href="https://github.com/sammyjava">@sammyjava</a></li>
+      <li>Daniela / <a href="https://github.com/danielabutano">@danielabutano</a></li>
+      <li>Vivek / <a href="https://github.com/vivekkrish">@vivekkrish</a></li>
+    </ul>
+  </li>
+  <li><strong>Student</strong>: Yash Sharma / <a href="https://github.com/yasharmaster">@yasharmaster</a></li>
+</ul>
+
+<h2 id="table-of-contents">Table of contents</h2>
+
+<ul>
+  <li><a href="#introduction">Introduction</a></li>
+  <li><a href="#quick-links">Quick links</a></li>
+  <li><a href="#how-to-use-the-code">How to use the code</a></li>
+  <li><a href="#metadata-in-neo4j">Metadata in Neo4j</a></li>
+  <li><a href="#pathquery-to-cypher">PathQuery to Cypher</a></li>
+  <li><a href="#restful-api">RESTful API</a></li>
+  <li><a href="#conclusion">Conclusion</a></li>
+</ul>
+
+<h2 id="introduction">Introduction</h2>
+
+<p>This document is for the purpose of review and for those interested to gain
+understanding about the work that I did for InterMine as a GSoC 2017 student developer. In this project we developed a prototype of InterMine which uses Neo4j database. The rest of the report describes the various tasks done during the summer.</p>
+
+<h2 id="quick-links">Quick Links</h2>
+
+<ul>
+  <li><a href="https://github.com/intermine/neo4j">Project Repo</a></li>
+  <li><a href="https://github.com/intermine/neo4j/commits/dev?author=yasharmaster">List of Commits</a></li>
+  <li><a href="http://yasharmaster.github.io/blog/">Blogs</a></li>
+  <li><a href="https://summerofcode.withgoogle.com/projects/#4633491521142784">GSoC Project Link</a></li>
+</ul>
+
+<h2 id="how-to-use-the-code">How to use the code</h2>
+
+<h4 id="test-the-api-via-its-swagger-ui">Test the API via its Swagger UI</h4>
+<ul>
+  <li>Visit <a href="http://intermine-neo4jwebapp.herokuapp.com/">intermine-neo4jwebapp.herokuapp.com</a> to test the API via its Swagger UI.</li>
+</ul>
+
+<h4 id="host-server-locally">Host Server Locally</h4>
+<ul>
+  <li>Visit the project repo <a href="https://github.com/intermine/neo4j">intermine/neo4j</a>.</li>
+  <li>Follow instructions given in <a href="https://github.com/intermine/neo4j/blob/dev/README.md">README.md</a> on how to host the server locally.</li>
+</ul>
+
+<h2 id="metadata-in-neo4j">Metadata in Neo4j</h2>
+
+<p><strong>Note</strong> - The metadata related code is in <a href="https://github.com/intermine/neo4j/tree/dev/intermine-neo4j/src/main/java/org/intermine/neo4j/metadata">org.intermine.neo4j.metadata</a> package.</p>
+
+<p>In the present version of InterMine, the data model is stored in an external <a href="https://github.com/intermine/intermine/blob/dev/bio/core/core.xml">XML file</a>. For each entity, its attributes, references and collections are stored in this XML file. For example, a part of the data model file which describes the BioEntity class looks like this.</p>
+
+<figure class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;class</span> <span class="na">name=</span><span class="s">"BioEntity"</span> <span class="na">is-interface=</span><span class="s">"true"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;attribute</span> <span class="na">name=</span><span class="s">"primaryIdentifier"</span> <span class="na">type=</span><span class="s">"java.lang.String"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;attribute</span> <span class="na">name=</span><span class="s">"symbol"</span> <span class="na">type=</span><span class="s">"java.lang.String"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;reference</span> <span class="na">name=</span><span class="s">"organism"</span> <span class="na">referenced-type=</span><span class="s">"Organism"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;collection</span> <span class="na">name=</span><span class="s">"locatedFeatures"</span> <span class="na">referenced-type=</span><span class="s">"Location"</span> <span class="na">reverse-reference=</span><span class="s">"locatedOn"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;collection</span> <span class="na">name=</span><span class="s">"locations"</span> <span class="na">referenced-type=</span><span class="s">"Location"</span> <span class="na">reverse-reference=</span><span class="s">"feature"</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/class&gt;</span></code></pre></figure>
+
+<p>While developing Neo4j prototype of InterMine, to reduce the dependency on external files, it was decided to store the schema in the Neo4j database itself. Since we can only store Nodes &amp; Directed Relationships in Neo4j, therefore it brought up two issues:</p>
+
+<ul>
+  <li>The data model must to be in the form of a graph itself so that it can be stored in the Neo4j database.</li>
+  <li>The data model should represent all the existing Nodes in the database and the Relationships among them.</li>
+</ul>
+
+<p>Since the data model is a graph and it stores information about the InterMine graph, we call it a metagraph. To create the schema/data-model for the database,</p>
+
+<ol>
+  <li>Some sample data is loaded in Neo4j which adheres to the data model.</li>
+  <li>As per the Nodes &amp; Relationship of the sample data, metagraph is generated &amp; stored in Neo4j.</li>
+  <li>The data model can be retrieved and accessed using the Model class and its methods.</li>
+</ol>
+
+<h3 id="metagraph-structure">Metagraph Structure</h3>
+
+<p>Each node in the metagraph is assigned <code class="highlighter-rouge">:Metagraph</code> label. All the metagraph nodes are further classified into two types, NodeType and RelType. As the name suggests, each NodeType node represents a specific type of nodes and each RelType node represents a specific type of relationship in the IM graph. So each node has either <code class="highlighter-rouge">:NodeType</code> or <code class="highlighter-rouge">:RelType</code> label depending on which entity it represents.</p>
+
+<h4 id="nodetype">NodeType</h4>
+
+<p>A metagraph node labelled <code class="highlighter-rouge">:NodeType</code> contains following two properties.</p>
+
+<ol>
+  <li>
+    <p><strong>labels</strong> - A list containing the labels of the nodes that are represented by the <code class="highlighter-rouge">:NodeType</code> node. For example, [“Gene”,”SequenceFeature”,”BioEntity”].</p>
+  </li>
+  <li>
+    <p><strong>keys</strong> - A list containing the keys of all the properties exist amongst the nodes that are represented by the <code class="highlighter-rouge">:NodeType</code> node. For example, [“primaryIdentifier”, “secondaryIdentifier”, “symbol”].</p>
+  </li>
+</ol>
+
+<p>Each <code class="highlighter-rouge">:NodeType</code> node is uniquely identified by its labels property. So, for all the nodes in the IM graph which are labelled <code class="highlighter-rouge">:Gene</code>, <code class="highlighter-rouge">:SequenceFeature</code>, <code class="highlighter-rouge">:BioEntity</code>, there exists one <code class="highlighter-rouge">:NodeType</code> node in the metagraph which has its labels property set as [“Gene”,”SequenceFeature”,”BioEntity”].</p>
+
+<h4 id="reltype">RelType</h4>
+
+<p>A metagraph node labelled <code class="highlighter-rouge">:RelType</code> contains following two properties.</p>
+
+<ol>
+  <li>
+    <p><strong>type</strong> - A string denoting the <code class="highlighter-rouge">type</code> of the relationships that are represented by the <code class="highlighter-rouge">:RelType</code> node. For example, “HOMOLOGUE_OF”.</p>
+  </li>
+  <li>
+    <p><strong>keys</strong> - A list containing the keys of all the properties exist amongst the relationships that are represented by the <code class="highlighter-rouge">:RelType</code> node. For example, [“DataSet”].</p>
+  </li>
+</ol>
+
+<p>Each <code class="highlighter-rouge">:RelType</code> node is uniquely identified by its type property. So, for all the relationships of type HOMOLOGUE_OF in the IM graph, there exists one <code class="highlighter-rouge">:RelType</code> node in the metagraph which has its type property set as “HOMOLOGUE_OF”.</p>
+
+<h4 id="relationships-in-metagraph">Relationships in MetaGraph</h4>
+
+<p>Metagraph should not only contain information about the properties of various entities in the IM graph but it should also store how different types of nodes are connected to each other. To represent this information, we make use of Neo4j relationships.</p>
+
+<p>We know that each <code class="highlighter-rouge">:RelType</code> node represents a type of relationships that exist in the IM graph. Now, we create two outgoing relationships/edges from each <code class="highlighter-rouge">:RelType</code> node - <code class="highlighter-rouge">:StartNodeType</code> and <code class="highlighter-rouge">:EndNodeType</code>. These edges end on a <code class="highlighter-rouge">:NodeType</code> node.</p>
+
+<p>Thus the metagraph path <code class="highlighter-rouge">(a:RelType)-[:StartNodeType]-&gt;(b:NodeType)</code> shows that the relationships represented by node <code class="highlighter-rouge">a</code> starts from the nodes represented by the node <code class="highlighter-rouge">b</code>. Same case follows for <code class="highlighter-rouge">:EndNodeType</code>.</p>
+
+<p><img src="http://yasharmaster.github.io/images/metagraph.jpg" alt="Metagraph" /></p>
+
+<h2 id="pathquery-to-cypher">PathQuery to Cypher</h2>
+
+<p><strong>Note</strong> - The Path Query to Cypher conversion code is in <a href="https://github.com/intermine/neo4j/tree/dev/intermine-neo4j/src/main/java/org/intermine/neo4j/cypher">org.intermine.neo4j.cypher</a> package.</p>
+
+<p>The InterMine graph is queried by the user via the API using Path Queries. On the other hand, Neo4j database is queried by Cypher Query Language. Therefore, we needed to convert the Path Query given by the user to Cypher Query. This conversion was the most difficult part of the project. Following is an example Path Query.</p>
+
+<figure class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;query</span> <span class="na">name=</span><span class="s">""</span> <span class="na">model=</span><span class="s">"genomic"</span> <span class="na">view=</span><span class="s">"Gene.primaryIdentifier"</span> <span class="na">longDescription=</span><span class="s">""</span> <span class="na">sortOrder=</span><span class="s">"Gene.primaryIdentifier asc"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;constraint</span> <span class="na">path=</span><span class="s">"Gene.chromosomeLocation"</span> <span class="na">op=</span><span class="s">"DOES NOT OVERLAP"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;value&gt;</span>2L:14615435..14619002
+        <span class="nt">&lt;/value&gt;</span>
+    <span class="nt">&lt;/constraint&gt;</span>
+<span class="nt">&lt;/query&gt;</span></code></pre></figure>
+
+<p>As you can see, various paths make up most of the Path Query. The information represented by paths is</p>
+<ul>
+  <li>either returned as views,</li>
+  <li>constrained to filter the data or</li>
+  <li>used to order the results etc.</li>
+</ul>
+
+<p>After pondering over the paths, I concluded that a <a href="https://en.wikipedia.org/wiki/Tree_(data_structure)">Tree</a> would be the best possible representation of all the paths of the Path Query. So, I created a data structure called a Path Tree and came up with an approach of Path Query to Cypher conversion which makes use of the Path Tree.</p>
+
+<p><img src="http://yasharmaster.github.io/images/PathTree.png" alt="PathTree" /></p>
+
+<p>Roughly, the following approach was used by me to convert Path Query to Cypher.</p>
+
+<figure class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="mf">1.</span> <span class="n">Take</span> <span class="n">a</span> <span class="n">PathQuery</span> <span class="n">object</span> <span class="n">as</span> <span class="n">input</span><span class="p">.</span>
+<span class="mf">2.</span> <span class="n">Retrieve</span> <span class="n">all</span> <span class="n">the</span> <span class="n">Paths</span> <span class="n">from</span> <span class="n">the</span> <span class="n">Views</span><span class="p">,</span> <span class="n">Constraints</span> <span class="o">&amp;</span> <span class="n">Sort</span> <span class="n">Order</span><span class="p">.</span>
+<span class="mf">3.</span> <span class="n">Using</span> <span class="n">all</span> <span class="n">the</span> <span class="n">Paths</span> <span class="n">of</span> <span class="n">PathQuery</span><span class="p">,</span> <span class="n">create</span> <span class="n">a</span> <span class="n">PathTree</span> <span class="n">such</span> <span class="n">that</span> 
+	<span class="mf">1.</span> <span class="n">Each</span> <span class="n">TreeNode</span> <span class="n">represents</span> <span class="n">a</span> <span class="n">component</span> <span class="n">of</span> <span class="n">the</span> <span class="n">path</span><span class="p">.</span> <span class="n">For</span> <span class="n">example</span><span class="p">,</span> <span class="n">the</span> <span class="n">path</span> <span class="s">"Gene.pathways.identifier"</span> <span class="n">forms</span> <span class="n">three</span> <span class="n">TreeNodes</span> <span class="n">i</span><span class="p">.</span><span class="n">e</span><span class="p">.</span> <span class="n">Gene</span><span class="p">,</span> <span class="n">Pathways</span> <span class="o">&amp;</span> <span class="n">Identifier</span><span class="p">.</span>
+	<span class="mf">2.</span> <span class="n">Paths</span> <span class="n">with</span> <span class="n">common</span> <span class="n">prefix</span> <span class="n">have</span> <span class="n">the</span> <span class="n">same</span> <span class="n">common</span> <span class="n">ancestor</span><span class="p">.</span>
+	<span class="mf">3.</span> <span class="n">Root</span> <span class="n">TreeNode</span> <span class="n">represents</span> <span class="n">a</span> <span class="n">Graph</span> <span class="n">Node</span><span class="p">.</span>
+	<span class="mf">4.</span> <span class="n">All</span> <span class="n">Leaves</span> <span class="n">of</span> <span class="n">the</span> <span class="n">PathTree</span> <span class="n">always</span> <span class="n">represent</span> <span class="n">Graph</span> <span class="n">Properties</span><span class="p">.</span>
+	<span class="mf">5.</span> <span class="n">All</span> <span class="n">other</span> <span class="n">Internal</span> <span class="n">TreeNodes</span> <span class="n">can</span> <span class="n">represent</span> <span class="n">either</span> <span class="n">Graph</span> <span class="n">Nodes</span> <span class="n">or</span> <span class="n">Graph</span> <span class="n">Relationships</span><span class="p">.</span>
+<span class="mf">4.</span> <span class="n">Generate</span> <span class="o">&amp;</span> <span class="n">store</span> <span class="n">a</span> <span class="n">unique</span> <span class="n">variable</span> <span class="n">name</span> <span class="n">to</span> <span class="n">each</span> <span class="n">Internal</span> <span class="n">node</span> <span class="n">of</span> <span class="n">the</span> <span class="n">PathTree</span><span class="p">.</span>
+	<span class="mf">1.</span> <span class="n">This</span> <span class="n">variable</span> <span class="n">name</span> <span class="n">will</span> <span class="n">be</span> <span class="n">used</span> <span class="k">for</span> <span class="n">referring</span> <span class="n">that</span> <span class="n">TreeNode</span> <span class="n">in</span> <span class="n">the</span> <span class="n">cypher</span> <span class="n">query</span><span class="p">.</span>
+	<span class="mf">2.</span> <span class="n">For</span> <span class="n">generating</span> <span class="n">the</span> <span class="n">variable</span> <span class="n">name</span><span class="p">,</span> <span class="n">we</span> <span class="n">can</span> <span class="n">separate</span> <span class="n">each</span> <span class="n">component</span> <span class="n">of</span> <span class="n">the</span> <span class="n">path</span> <span class="k">using</span> <span class="n">underscores</span><span class="p">.</span> <span class="n">For</span> <span class="n">example</span><span class="p">,</span> <span class="n">the</span> <span class="n">variable</span> <span class="n">name</span> <span class="k">for</span> <span class="s">"Gene.pathways.identifier"</span> <span class="n">will</span> <span class="n">be</span> <span class="n">gene_pathways_identifier</span><span class="p">.</span>
+<span class="mf">5.</span> <span class="n">Use</span> <span class="n">the</span> <span class="n">PathTree</span> <span class="o">&amp;</span> <span class="n">PathQuery</span> <span class="n">to</span> <span class="n">generate</span> <span class="n">the</span> <span class="n">cypher</span> <span class="n">query</span>
+	<span class="mf">1.</span> <span class="n">For</span> <span class="n">creating</span> <span class="n">the</span> <span class="n">Match</span> <span class="n">Clause</span><span class="p">,</span> <span class="n">starting</span> <span class="n">with</span> <span class="n">the</span> <span class="n">Root</span><span class="p">,</span> <span class="n">recursively</span> <span class="n">match</span> <span class="n">each</span> <span class="n">TreeNode</span> <span class="n">of</span> <span class="n">the</span> <span class="n">PathTree</span><span class="p">,</span>
+		<span class="mf">1.</span> <span class="n">If</span> <span class="n">the</span> <span class="n">TreeNode</span> <span class="n">is</span> <span class="n">Root</span><span class="p">,</span> <span class="n">match</span> <span class="n">the</span> <span class="n">node</span> <span class="n">itself</span><span class="p">.</span> <span class="n">e</span><span class="p">.</span><span class="n">g</span><span class="p">.</span> <span class="p">(</span><span class="n">gene</span><span class="p">).</span>
+		<span class="mf">2.</span> <span class="n">If</span> <span class="n">current</span> <span class="n">TreeNode</span> <span class="n">is</span> <span class="n">a</span> <span class="n">NODE</span><span class="p">,</span>
+			<span class="mf">1.</span> <span class="n">If</span> <span class="n">its</span> <span class="n">parent</span> <span class="n">is</span> <span class="n">also</span> <span class="n">a</span> <span class="n">NODE</span><span class="p">,</span> <span class="n">then</span> <span class="n">fetch</span> <span class="n">the</span> <span class="n">Relationship</span> <span class="n">Type</span> <span class="n">from</span> <span class="n">the</span> <span class="n">XML</span> <span class="n">data</span> <span class="n">model</span> <span class="n">file</span> <span class="n">and</span> <span class="n">create</span> <span class="n">the</span> <span class="n">match</span> <span class="n">as</span> <span class="p">(</span><span class="n">parentNode</span><span class="p">)</span><span class="o">-</span><span class="p">[</span><span class="n">relationshipFromXml</span><span class="p">]</span><span class="o">-</span><span class="p">(</span><span class="n">currentNode</span><span class="p">).</span>
+			<span class="mf">2.</span> <span class="n">If</span> <span class="n">the</span> <span class="n">parent</span> <span class="n">is</span> <span class="n">a</span> <span class="n">RELATIONSHIP</span><span class="p">,</span> <span class="n">then</span> <span class="n">fetch</span> <span class="n">the</span> <span class="n">grand</span> <span class="n">parent</span> <span class="n">from</span> <span class="n">the</span> <span class="n">PathTree</span> <span class="n">and</span> <span class="n">create</span> <span class="n">match</span> <span class="n">as</span> <span class="p">(</span><span class="n">grandParentNode</span><span class="p">)</span><span class="o">-</span><span class="p">[</span><span class="n">parentNode</span><span class="p">]</span><span class="o">-</span><span class="p">(</span><span class="n">currentNode</span><span class="p">).</span>
+		<span class="mf">3.</span> <span class="n">If</span> <span class="n">current</span> <span class="n">TreeNode</span> <span class="n">is</span> <span class="n">a</span> <span class="n">RELATIONSHIP</span><span class="p">,</span> 
+	        	<span class="mf">1.</span> <span class="n">If</span> <span class="n">current</span> <span class="n">node</span> <span class="n">does</span> <span class="n">not</span> <span class="n">have</span> <span class="n">any</span> <span class="n">children</span><span class="p">,</span> <span class="n">then</span> <span class="n">add</span> <span class="n">match</span> <span class="n">with</span> <span class="n">an</span> <span class="n">empty</span> <span class="n">node</span> <span class="n">as</span> <span class="p">(</span><span class="n">parentNode</span><span class="p">)</span><span class="o">-</span><span class="p">[</span><span class="n">currentNode</span><span class="p">]</span><span class="o">-</span><span class="p">().</span>
+	        	<span class="mf">2.</span> <span class="n">If</span> <span class="n">current</span> <span class="n">node</span> <span class="n">has</span> <span class="n">any</span> <span class="n">children</span><span class="p">,</span> <span class="n">then</span> <span class="k">do</span> <span class="n">nothing</span> <span class="p">(</span><span class="n">they</span> <span class="n">will</span> <span class="n">be</span> <span class="n">matched</span> <span class="n">when</span> <span class="n">recursion</span> <span class="n">reaches</span> <span class="n">the</span> <span class="n">children</span><span class="p">).</span>
+	<span class="mf">2.</span> <span class="n">For</span> <span class="n">creating</span> <span class="n">the</span> <span class="n">WHERE</span> <span class="n">clause</span><span class="p">,</span>
+		<span class="mf">1.</span> <span class="n">For</span> <span class="n">each</span> <span class="n">constraint</span> <span class="n">in</span> <span class="n">the</span> <span class="n">PathQuery</span><span class="p">,</span> <span class="n">generate</span> <span class="n">an</span> <span class="n">equivalent</span> <span class="n">Cypher</span> <span class="n">constraint</span><span class="p">.</span>
+		<span class="mf">2.</span> <span class="n">In</span> <span class="n">the</span> <span class="n">constraint</span> <span class="n">logic</span> <span class="n">of</span> <span class="n">the</span> <span class="n">PathQuery</span><span class="p">,</span> <span class="n">replace</span> <span class="n">the</span> <span class="n">constraint</span> <span class="n">code</span> <span class="n">of</span> <span class="n">each</span> <span class="n">constraint</span> <span class="n">with</span> <span class="n">its</span> <span class="n">equivalent</span> <span class="n">Cypher</span> <span class="n">constraint</span><span class="p">.</span>
+	<span class="mf">3.</span> <span class="n">For</span> <span class="n">creating</span> <span class="n">the</span> <span class="n">RETURN</span> <span class="n">clause</span>
+		<span class="mf">1.</span> <span class="n">For</span> <span class="n">each</span> <span class="n">view</span><span class="p">,</span> <span class="n">get</span> <span class="n">its</span> <span class="n">path</span>
+		<span class="mf">2.</span> <span class="n">Get</span> <span class="n">the</span> <span class="n">variableName</span> <span class="n">of</span> <span class="n">the</span> <span class="n">last</span> <span class="n">TreeNode</span> <span class="n">of</span> <span class="n">the</span> <span class="n">path</span>
+		<span class="mf">3.</span> <span class="n">Add</span> <span class="n">variableNames</span> <span class="n">separated</span> <span class="n">by</span> <span class="n">commas</span> <span class="k">for</span> <span class="n">each</span> <span class="n">such</span> <span class="n">variable</span>
+	<span class="mf">4.</span> <span class="n">For</span> <span class="n">creating</span> <span class="n">ORDER</span> <span class="n">BY</span> <span class="n">clause</span><span class="p">,</span>
+		<span class="mf">1.</span> <span class="n">For</span> <span class="n">each</span> <span class="n">Sort</span> <span class="n">Order</span><span class="p">,</span> <span class="n">get</span> <span class="n">its</span> <span class="n">path</span>
+		<span class="mf">2.</span> <span class="n">Get</span> <span class="n">the</span> <span class="n">variableName</span> <span class="n">of</span> <span class="n">the</span> <span class="n">last</span> <span class="n">TreeNode</span> <span class="n">of</span> <span class="n">the</span> <span class="n">path</span>
+		<span class="mf">3.</span> <span class="n">Add</span> <span class="n">variableName</span> <span class="n">ASC</span><span class="o">/</span><span class="n">DESC</span> <span class="n">separated</span> <span class="n">by</span> <span class="n">commas</span> <span class="k">for</span> <span class="n">each</span> <span class="n">such</span> <span class="n">variable</span>
+	<span class="mf">5.</span> <span class="n">For</span> <span class="n">handling</span> <span class="n">JOIN</span> <span class="n">operations</span> <span class="n">in</span> <span class="n">the</span> <span class="n">PathQuery</span><span class="p">,</span>
+		<span class="mf">1.</span> <span class="n">Add</span> <span class="n">OPTIONAL</span> <span class="n">MATCH</span> <span class="n">clause</span> <span class="n">in</span> <span class="n">the</span> <span class="n">query</span> <span class="k">for</span> <span class="n">corresponding</span> <span class="n">paths</span><span class="p">.</span>
+<span class="mf">7.</span> <span class="n">Return</span> <span class="n">the</span> <span class="n">generated</span> <span class="n">query</span></code></pre></figure>
+
+<p>The above approch is implemented in <a href="https://github.com/intermine/neo4j/blob/dev/intermine-neo4j/src/main/java/org/intermine/neo4j/cypher/QueryGenerator.java">QueryGenerator</a> class. After converting the Path Query given above, we will get the following Cypher query.</p>
+
+<figure class="highlight"><pre><code class="language-cypher" data-lang="cypher">MATCH (gene :Gene),
+(gene)-[gene_chromosomelocation:LOCATED_ON]-()
+WHERE NOT (gene_chromosomelocation.start &lt;= 14619002 AND gene_chromosomelocation.end &gt;= 14615435 AND ()-[gene_chromosomelocation]-(:Chromosome {primaryIdentifier:'2L'}))
+RETURN gene.primaryIdentifier
+ORDER BY gene.primaryIdentifier ASC</code></pre></figure>
+
+<h2 id="restful-api">RESTful API</h2>
+
+<p><strong>Note</strong> - The REST API code is in <a href="https://github.com/intermine/neo4j/tree/dev/intermine-neo4jwebapp">intermine-neo4jwebapp</a> sub-project of the <a href="https://github.com/intermine/neo4j">intermine/neo4j</a> repository.</p>
+
+<h3 id="intermine-neo4j-api">InterMine-Neo4j API</h3>
+
+<p>The InterMine-Neo4j API is developed using <a href="https://jersey.github.io/">Jersey</a> and is documented using <a href="http://swagger.io/">Swagger</a>. The InterMine-Neo4j API can be explored via Swagger UI at <a href="http://intermine-neo4jwebapp.herokuapp.com">intermine-neo4jwebapp.herokuapp.com</a>. There are two major endpoints in the API so far,</p>
+
+<ul>
+  <li><strong>query/cypher</strong> - This returns the Cypher equivalent of any Path Query.</li>
+  <li><strong>query/results</strong> - This endpoint returns the results of a Path Query by converting it into Cypher and running that Cypher against InterMine-Neo4j Graph.</li>
+</ul>
+
+<h3 id="api-response">API Response</h3>
+
+<p>We have kept InterMine-Neo4j API JSON response exactly similar to the InterMine API response. This would ensure that the applications that consume existing InterMine API can work seamlessly with the new API. The API response is being created manually in <a href="https://github.com/intermine/neo4j/blob/dev/intermine-neo4jwebapp/src/main/java/org/intermine/neo4j/model/QueryResult.java">QueryResult</a> class.</p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>Contributing to InterMine this summer has been an amazing experience. It was my first time working on a project with a global team of experienced developers. I have got a chance to explore the latest technologies like Neo4j, Jersey, Gradle, Swagger etc.</p>
+
+<p>I am grateful to my mentors Sam, Vivek and Daniela, for their guidance, direction and support throughout the summer. It is only because of their support and encouragement that I could complete this project. The entire InterMine community is welcoming and friendly. Overall it was a great learning experience!</p>
+
+
+                    ]]>
+                </content:encoded>
+                <guid isPermaLink="false">/gsoc/2017/08/29/gsoc-2017-final-report/</guid>
+                <description>
+                    
+                </description>
+                <pubDate>Tue, 29 Aug 2017 13:30:00 +0530</pubDate>
+                <author>Yash Sharma</author>
+            </item>
+        
+    
+        
+            <item>
+                <title>Documenting InterMine-Neo4j API with Swagger UI</title>
+                <link>http://localhost:4000/gsoc/2017/08/10/documenting-intermine-neo4j-api-with-swagger/</link>
+                <content:encoded>
+                    <![CDATA[
+                    <p>This post talks about InterMine-Neo4j API and its Swagger integration.</p>
+
+<h2 id="background">Background</h2>
+
+<p>In the past blog posts I described that we have decided to query InterMine Neo4j Graph using Cypher and how I am going to convert PathQuery to Cypher. To expose the Neo4j Query Service, it was decided to keep the API endpoints and response <em>same as the InterMine API service</em> so that BlueGenes can be configured to work with it easily at later stages.</p>
+
+<h2 id="swagger-ui">Swagger UI</h2>
+
+<p><a href="https://swagger.io/swagger-ui/">Swagger UI</a> is a popular API documenting tool using which anyone can <em>visualize and interact with your API’s resources</em> without having any of the implementation logic in place. It’s <em>automatically generated from your Swagger specification</em>, with the visual documentation making it easy for back end implementation and client side consumption.</p>
+
+<h2 id="intermine-neo4j-api">InterMine-Neo4j API</h2>
+
+<p>The API is developed using <a href="https://jersey.github.io/">Jersey</a> framework which provides support for JAX-RS APIs in Java. The code can be found is <em>intermine-neo4jwebapp</em> sub-project in the <a href="https://github.com/intermine/neo4j">intermine/neo4j</a> repository.</p>
+
+<p>You can play with the InterMine-Neo4j API via Swagger UI at <a href="http://intermine-neo4jwebapp.herokuapp.com/">intermine-neo4jwebapp.herokuapp.com</a>. There are two endpoints in the API so far,</p>
+
+<ul>
+  <li>
+    <p><code class="highlighter-rouge">query/cypher</code> - This returns the Cypher equivalent of any Path Query.</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">query/results</code> - This endpoint returns the results of a Path Query by converting it into Cypher and running that Cypher against InterMine-Neo4j Graph.</p>
+  </li>
+</ul>
+
+<h2 id="integrating-api-with-swagger">Integrating API with Swagger</h2>
+
+<p>Documenting InterMine-Neo4j API with Swagger involves the following steps.</p>
+
+<h4 id="set-up-swagger-core-in-the-project">Set up swagger-core in the project.</h4>
+
+<p>I used <a href="https://github.com/swagger-api/swagger-core/wiki/Swagger-Core-Jersey-2.X-Project-Setup-1.5">Swagger Core Jersey 2.X Project Setup 1.5</a> guide to add swagger-core to the projects. The information given in this guide is as per Maven projects. As we use Gradle as the build tool at InterMine, I had to do add dependencies differently. The other steps remain more or less the same.</p>
+
+<h4 id="add-annotations-to-the-code">Add Annotations to the Code</h4>
+
+<p>The next step is to add annotations to the API code. At <a href="https://github.com/swagger-api/swagger-core/wiki/Annotations-1.5.X">Swagger-Core Annotations</a> page you can find the documentation of all the annotations available with swagger-core.</p>
+
+<h4 id="preview-swaggerjson">Preview swagger.json</h4>
+
+<p>If the above two steps are executed properly, you should be able to see swagger.json generated for your code at <code class="highlighter-rouge">{swagger.api.basepath}/swagger.json</code>. For example, in our case, the swagger.json is generated at <a href="http://intermine-neo4jwebapp.herokuapp.com/service/swagger.json">http://intermine-neo4jwebapp.herokuapp.com/service/swagger.json</a>.</p>
+
+<h4 id="add-swagger-ui-code-to-your-project">Add Swagger UI code to your project</h4>
+
+<p>The next step is to download the Swagger UI code from the <em>dist</em> folder in the <a href="https://github.com/swagger-api/swagger-ui">swagger/swagger-ui</a> repository and place it in the <code class="highlighter-rouge">webapp</code> folder of the project.</p>
+
+<h4 id="configuring-swagger-ui">Configuring Swagger UI</h4>
+
+<p>Among all the files that are downloaded in the previous step, we need to configure <code class="highlighter-rouge">index.html</code>. We need to update the <code class="highlighter-rouge">url</code> property in the <code class="highlighter-rouge">&lt;script&gt;</code> tag at the end of this file by pasting the link to our generated <code class="highlighter-rouge">swagger.json</code> file.</p>
+
+<p>After following all the steps properly, you should be able to see the generated Swagger Documentation of the API. :)</p>
+
+<p>Feel free to checkout Swagger UI of InterMine Neo4j API at <a href="http://intermine-neo4jwebapp.herokuapp.com/">http://intermine-neo4jwebapp.herokuapp.com/</a> and stay tuned for more updates.</p>
+
+                    ]]>
+                </content:encoded>
+                <guid isPermaLink="false">/gsoc/2017/08/10/documenting-intermine-neo4j-api-with-swagger/</guid>
+                <description>
+                    
+                </description>
+                <pubDate>Thu, 10 Aug 2017 13:30:00 +0530</pubDate>
+                <author>Yash Sharma</author>
+            </item>
+        
+    
+        
+            <item>
+                <title>Creating Match, Return, Order By clauses From a PathTree</title>
+                <link>http://localhost:4000/gsoc/2017/07/02/creating-match-return-order-by-from-pathtree/</link>
+                <content:encoded>
+                    <![CDATA[
+                    <p>In this post I’ll describe in detail, how I created Match, Return and Order By clauses of Cypher using a PathTree. PathTree was discussed in the <a href="/blog/2017/path-query-cypher-puzzle-part-2/">previous post</a>.</p>
+
+<h2 id="description-of-clauses">Description of Clauses</h2>
+
+<h3 id="match">Match</h3>
+
+<p>Match is the very first clause in every Cypher query. It allows you to specify the patterns Neo4j will search for in the database. These patterns must be such that the data which matches them, must be the data you wish to operate (or query) on. Consider an example Match clause which matches three <em>Genes</em> such that two of them  <em>INTERACTS_WITH</em> the third one.</p>
+
+<figure class="highlight"><pre><code class="language-cypher" data-lang="cypher">MATCH (a:Gene)-[:INTERACTS_WITH]-&gt;(b:Gene)&lt;-[:INTERACTS_WITH]-(c:Gene)</code></pre></figure>
+
+<p>The pattern above is a 2-dimensional pattern which we often have to deal with, in Cypher. Although, it is easier to imagine the pattern in 2-D, we generally need to break them down into multiple 1-D patterns while writing cypher queries. Also, 1-D patterns would be easier to generate programmatically than their 2-D counterparts. For example, the following Match clause with two 1-D patterns is equivalent to the one shown above.</p>
+
+<figure class="highlight"><pre><code class="language-cypher" data-lang="cypher">MATCH (a:Gene)-[:INTERACTS_WITH]-&gt;(b:Gene),
+(c:Gene)-[:INTERACTS_WITH]-&gt;(b)</code></pre></figure>
+
+<p>Note that we could simply use the variable name <code class="highlighter-rouge">b</code> in the second pattern without specifying the Label <em>Gene</em>. It doesn’t seem very significant here but it makes generating queries very convinient while dealing with some complicated paths. Suppose you need to specify a Path/Node/Relationship again and again in the query, wouldn’t you be comfortable in just writing its variable name and get done with it?</p>
+
+<h3 id="return">Return</h3>
+
+<p>In the RETURN part of the cypher query, we define the parts of the pattern in which we are interested. It can be nodes, relationships, or properties on these.</p>
+
+<figure class="highlight"><pre><code class="language-cypher" data-lang="cypher">MATCH (a:Gene {primaryIdentifier:'WBGene00007063'})-[r:INTERACTS_WITH]-&gt;(b:Gene)
+// Following are some possbile return statements,
+RETURN b
+RETURN r
+RETURN b.primaryIdentifier
+RETURN r.dataSet</code></pre></figure>
+
+<h3 id="order-by">Order By</h3>
+
+<p>ORDER BY is a sub-clause following RETURN, and it specifies that the output should be sorted and how. For example,</p>
+
+<figure class="highlight"><pre><code class="language-cypher" data-lang="cypher">MATCH (a:Gene {primaryIdentifier:'WBGene00007063'})-[r:INTERACTS_WITH]-&gt;(b:Gene)
+RETURN b
+ORDER BY b.symbol</code></pre></figure>
+
+<p>For more information, please refer to <a href="http://neo4j.com/docs/developer-manual/current/cypher/">Neo4j Developer Manual</a>.</p>
+
+<h2 id="assigning-variable-names-to-treenodes">Assigning variable names to TreeNodes</h2>
+
+<p>We see that variable names are crucial in a Cypher query. A PathTree represents all the paths in the corresponding PathQuery. Since we can have a constraint/view/order on any path, therefore we need to assign variable name to each node of the PathTree.</p>
+
+<p><img src="/images/PathTree.png" alt="A Path Tree" /></p>
+
+<p>We cannot just use the component name as the variable name. This is because a component can be repeated in the same path. For example, in <code class="highlighter-rouge">Gene.chromosome.gene.length</code>, <code class="highlighter-rouge">gene</code> appears twice. Having a unique variable name for each TreeNode is crucial to generating the Cypher query.</p>
+
+<p>To create the variable names, I have simply separated components in the path using an underscore instead of a dot. Also, I have converted the path string to its lower case form. For example, the TreeNode for the path <code class="highlighter-rouge">Gene.homologues.dataSets.name</code> will have variable name <code class="highlighter-rouge">gene_homologues_datasets_name</code>. This approach is fine till we don’t exceed the max length of variable name for a path.</p>
+
+<h4 id="treenode-description">TreeNode Description</h4>
+
+<p>A TreeNode for the path <code class="highlighter-rouge">Gene.chromosome.gene.length</code>, stores the following information.</p>
+
+<ul>
+  <li><code class="highlighter-rouge">type</code> : Whether this TreeNode represents a Graphical Node or Relationship or a Property on them.</li>
+  <li><code class="highlighter-rouge">name</code> : The last component of the path, i.e. length.</li>
+  <li><code class="highlighter-rouge">variable name</code> : The one we generated using approach shown above, i.e. gene_chromosome_gene_length.</li>
+  <li><code class="highlighter-rouge">graphical name</code> : This is the name by which we refer this entity/property in the InterMine Neo4j graph. Here we keep it same as <code class="highlighter-rouge">name</code>, i.e. length.</li>
+</ul>
+
+<h2 id="clause-creation">Clause Creation</h2>
+
+<h4 id="return-1">RETURN</h4>
+
+<p>The return clause always starts with the <em>RETURN</em> keyword. After that, for each view in the PathQuery, we add an expression separated by commas. The expression consists of the variable name and the respective graphical name.</p>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="cm">/**
+ * Creates RETURN clause of the Cypher Query using the Path Query and Path Tree
+ *
+ * @param cypherQuery     the Cypher Query object
+ * @param pathTree  the given PathTree
+ * @param pathQuery the given PathQuery
+ */</span>
+<span class="kd">private</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">createReturnClause</span><span class="o">(</span><span class="n">CypherQuery</span> <span class="n">cypherQuery</span><span class="o">,</span> <span class="n">PathTree</span> <span class="n">pathTree</span><span class="o">,</span> <span class="n">PathQuery</span> <span class="n">pathQuery</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">for</span> <span class="o">(</span><span class="n">String</span> <span class="n">path</span> <span class="o">:</span> <span class="n">pathQuery</span><span class="o">.</span><span class="na">getView</span><span class="o">())</span> <span class="o">{</span>
+        <span class="n">TreeNode</span> <span class="n">treeNode</span> <span class="o">=</span> <span class="n">pathTree</span><span class="o">.</span><span class="na">getTreeNode</span><span class="o">(</span><span class="n">path</span><span class="o">);</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">treeNode</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="n">treeNode</span><span class="o">.</span><span class="na">getTreeNodeType</span><span class="o">()</span> <span class="o">==</span> <span class="n">TreeNodeType</span><span class="o">.</span><span class="na">PROPERTY</span><span class="o">)</span> <span class="o">{</span>
+            <span class="c1">// Add to return clause ONLY IF the TreeNode represents a property !!</span>
+            <span class="c1">// Nodes &amp; Relationships cannot be returned.</span>
+            <span class="n">cypherQuery</span><span class="o">.</span><span class="na">addToReturn</span><span class="o">(</span><span class="n">treeNode</span><span class="o">.</span><span class="na">getParent</span><span class="o">().</span><span class="na">getVariableName</span><span class="o">()</span>
+                                    <span class="o">+</span> <span class="s">"."</span>
+                                    <span class="o">+</span> <span class="n">treeNode</span><span class="o">.</span><span class="na">getGraphicalName</span><span class="o">());</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span></code></pre></figure>
+
+<h4 id="order-by-1">ORDER BY</h4>
+
+<p>The order by clause always starts with the <em>ORDER BY</em> keyword. After that, we simply append the variable name and the respective graphical name for each <code class="highlighter-rouge">sortOrder's</code> path of the PathQuery. The sort type (Ascending/Descending) is also added.</p>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="cm">/**
+ * Generates Order objects from the Path Query and adds them to the Cypher Query.
+ * These will be used to create the Order By clause within the CypherQuery class.
+ *
+ * @param cypherQuery     the Cypher Query object
+ * @param pathTree  the given PathTree
+ * @param pathQuery the given PathQuery
+ */</span>
+<span class="kd">private</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">addOrdersToCypher</span><span class="o">(</span><span class="n">CypherQuery</span> <span class="n">cypherQuery</span><span class="o">,</span> <span class="n">PathTree</span> <span class="n">pathTree</span><span class="o">,</span> <span class="n">PathQuery</span> <span class="n">pathQuery</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">List</span><span class="o">&lt;</span><span class="n">OrderElement</span><span class="o">&gt;</span> <span class="n">orderElements</span> <span class="o">=</span> <span class="n">pathQuery</span><span class="o">.</span><span class="na">getOrderBy</span><span class="o">();</span>
+    <span class="k">for</span> <span class="o">(</span><span class="n">OrderElement</span> <span class="n">orderElement</span> <span class="o">:</span> <span class="n">orderElements</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">Order</span> <span class="n">order</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Order</span><span class="o">(</span><span class="n">orderElement</span><span class="o">,</span> <span class="n">pathTree</span><span class="o">);</span>
+        <span class="n">cypherQuery</span><span class="o">.</span><span class="na">addOrder</span><span class="o">(</span><span class="n">order</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span></code></pre></figure>
+
+<h4 id="match-1">Match</h4>
+
+<p>Creation of Match clause is rather complex. The match clause always starts with the <em>MATCH</em> keyword. After that, for each edge in the PathTree we write two nodes and the relationship between them. If two adjacent TreeNodes represent Graph Nodes, then we use a dummy relationship to join them. Otherwise we add the relationship represented by the TreeNode in between.</p>
+
+<p>The <code class="highlighter-rouge">createMatchClause()</code> recursive method takes in the <code class="highlighter-rouge">Query</code> object and the root <code class="highlighter-rouge">TreeNode</code> as parameters. The following code snippet shows the method in action.</p>
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="cm">/**
+ * Creates MATCH clause of the Cypher Query using the given PathTree
+ *
+ * @param cypherQuery    the Cypher Query object
+ * @param treeNode the root node of the PathTree
+ */</span>
+<span class="kd">private</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">createMatchClause</span><span class="o">(</span><span class="n">CypherQuery</span> <span class="n">cypherQuery</span><span class="o">,</span> <span class="n">TreeNode</span> <span class="n">treeNode</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span><span class="o">,</span> <span class="n">ModelParserException</span><span class="o">,</span> <span class="n">SAXException</span><span class="o">,</span> <span class="n">ParserConfigurationException</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">treeNode</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nf">IllegalArgumentException</span><span class="o">(</span><span class="s">"Root node of PathTree cannot be null."</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="k">else</span> <span class="nf">if</span> <span class="o">(</span><span class="n">treeNode</span><span class="o">.</span><span class="na">getTreeNodeType</span><span class="o">()</span> <span class="o">==</span> <span class="n">TreeNodeType</span><span class="o">.</span><span class="na">PROPERTY</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// Properties don't need to be matched in the Match statement of cypher.</span>
+        <span class="k">return</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="k">else</span> <span class="nf">if</span> <span class="o">(</span><span class="n">treeNode</span><span class="o">.</span><span class="na">getParent</span><span class="o">()</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// Root TreeNode is always a Graph Node</span>
+        <span class="n">cypherQuery</span><span class="o">.</span><span class="na">addToMatch</span><span class="o">(</span><span class="s">"("</span> <span class="o">+</span> <span class="n">treeNode</span><span class="o">.</span><span class="na">getVariableName</span><span class="o">()</span> <span class="o">+</span>
+                         <span class="s">" :"</span> <span class="o">+</span> <span class="n">treeNode</span><span class="o">.</span><span class="na">getGraphicalName</span><span class="o">()</span> <span class="o">+</span> <span class="s">")"</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="k">else</span> <span class="o">{</span>
+        <span class="n">String</span> <span class="n">match</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">treeNode</span><span class="o">.</span><span class="na">getTreeNodeType</span><span class="o">()</span> <span class="o">==</span> <span class="n">TreeNodeType</span><span class="o">.</span><span class="na">NODE</span><span class="o">)</span> <span class="o">{</span>
+
+            <span class="n">Neo4jModelParser</span> <span class="n">modelParser</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Neo4jModelParser</span><span class="o">();</span>
+            <span class="n">modelParser</span><span class="o">.</span><span class="na">process</span><span class="o">(</span><span class="k">new</span> <span class="n">Neo4jLoaderProperties</span><span class="o">());</span>
+            <span class="n">TreeNode</span> <span class="n">parentTreeNode</span> <span class="o">=</span> <span class="n">treeNode</span><span class="o">.</span><span class="na">getParent</span><span class="o">();</span>
+
+            <span class="k">if</span> <span class="o">(</span><span class="n">parentTreeNode</span><span class="o">.</span><span class="na">getTreeNodeType</span><span class="o">()</span> <span class="o">==</span> <span class="n">TreeNodeType</span><span class="o">.</span><span class="na">NODE</span><span class="o">)</span> <span class="o">{</span>
+                <span class="c1">// If current TreeNode is a NODE and its parent is also a NODE, then use</span>
+                <span class="c1">// ModelParser.getRelationshipType to fetch the Relationship Type from the</span>
+                <span class="c1">// XML data model file.</span>
+                <span class="n">String</span> <span class="n">className</span> <span class="o">=</span> <span class="n">parentTreeNode</span><span class="o">.</span><span class="na">getPath</span><span class="o">().</span><span class="na">getEndClassDescriptor</span><span class="o">().</span><span class="na">getSimpleName</span><span class="o">();</span>
+                <span class="n">String</span> <span class="n">refName</span> <span class="o">=</span> <span class="n">treeNode</span><span class="o">.</span><span class="na">getName</span><span class="o">();</span>
+
+                <span class="n">String</span> <span class="n">relationshipType</span> <span class="o">=</span> <span class="n">modelParser</span><span class="o">.</span><span class="na">getRelationshipType</span><span class="o">(</span><span class="n">className</span><span class="o">,</span> <span class="n">refName</span><span class="o">);</span>
+                <span class="n">match</span> <span class="o">=</span> <span class="s">"("</span> <span class="o">+</span>
+                        <span class="n">parentTreeNode</span><span class="o">.</span><span class="na">getVariableName</span><span class="o">()</span> <span class="o">+</span>
+                        <span class="s">")-[:"</span> <span class="o">+</span>
+                        <span class="n">relationshipType</span> <span class="o">+</span>
+                        <span class="s">"]-("</span> <span class="o">+</span>
+                        <span class="n">treeNode</span><span class="o">.</span><span class="na">getVariableName</span><span class="o">()</span> <span class="o">+</span>
+                        <span class="s">" :"</span> <span class="o">+</span>
+                        <span class="n">treeNode</span><span class="o">.</span><span class="na">getGraphicalName</span><span class="o">()</span> <span class="o">+</span>
+                        <span class="s">")"</span><span class="o">;</span>
+            <span class="o">}</span>
+            <span class="k">else</span> <span class="nf">if</span> <span class="o">(</span><span class="n">parentTreeNode</span><span class="o">.</span><span class="na">getTreeNodeType</span><span class="o">()</span> <span class="o">==</span> <span class="n">TreeNodeType</span><span class="o">.</span><span class="na">RELATIONSHIP</span><span class="o">)</span> <span class="o">{</span>
+                <span class="c1">// If current TreeNode is a NODE and its parent is a RELATIONSHIP, then fetch</span>
+                <span class="c1">// the grand parent from the PathTree. Use relationship described by the parent</span>
+                <span class="c1">// TreeNode between the grand parent and the current TreeNode.</span>
+                <span class="n">match</span> <span class="o">=</span> <span class="s">"("</span> <span class="o">+</span>
+                        <span class="n">parentTreeNode</span><span class="o">.</span><span class="na">getParent</span><span class="o">().</span><span class="na">getVariableName</span><span class="o">()</span> <span class="o">+</span>
+                        <span class="s">")-["</span> <span class="o">+</span>
+                        <span class="n">parentTreeNode</span><span class="o">.</span><span class="na">getVariableName</span><span class="o">()</span> <span class="o">+</span>
+                        <span class="s">":"</span> <span class="o">+</span>
+                        <span class="n">parentTreeNode</span><span class="o">.</span><span class="na">getGraphicalName</span><span class="o">()</span> <span class="o">+</span>
+                        <span class="s">"]-("</span> <span class="o">+</span>
+                        <span class="n">treeNode</span><span class="o">.</span><span class="na">getVariableName</span><span class="o">()</span> <span class="o">+</span>
+                        <span class="s">" :"</span> <span class="o">+</span>
+                        <span class="n">treeNode</span><span class="o">.</span><span class="na">getGraphicalName</span><span class="o">()</span> <span class="o">+</span>
+                        <span class="s">")"</span><span class="o">;</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+        <span class="k">else</span> <span class="nf">if</span> <span class="o">(</span><span class="n">treeNode</span><span class="o">.</span><span class="na">getTreeNodeType</span><span class="o">()</span> <span class="o">==</span> <span class="n">TreeNodeType</span><span class="o">.</span><span class="na">RELATIONSHIP</span><span class="o">)</span> <span class="o">{</span>
+            <span class="c1">// If the current TreeNode is a RELATIONSHIP and it has no children, then</span>
+            <span class="c1">// use this relationship between the NODE represented by the parent TreeNode</span>
+            <span class="c1">// and an empty node. For example, (m:Gene)-[r:LOCATED_ON]-().</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">treeNode</span><span class="o">.</span><span class="na">getChildrenKeys</span><span class="o">().</span><span class="na">isEmpty</span><span class="o">())</span> <span class="o">{</span>
+                <span class="n">TreeNode</span> <span class="n">parentTreeNode</span> <span class="o">=</span> <span class="n">treeNode</span><span class="o">.</span><span class="na">getParent</span><span class="o">();</span>
+                <span class="n">match</span> <span class="o">=</span> <span class="s">"("</span> <span class="o">+</span>
+                        <span class="n">parentTreeNode</span><span class="o">.</span><span class="na">getVariableName</span><span class="o">()</span> <span class="o">+</span>
+                        <span class="s">")-["</span> <span class="o">+</span>
+                        <span class="n">treeNode</span><span class="o">.</span><span class="na">getVariableName</span><span class="o">()</span> <span class="o">+</span>
+                        <span class="s">":"</span> <span class="o">+</span>
+                        <span class="n">treeNode</span><span class="o">.</span><span class="na">getGraphicalName</span><span class="o">()</span> <span class="o">+</span>
+                        <span class="s">"]-()"</span><span class="o">;</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">match</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="c1">// If string is not null then any of the above 3 cases has occurred,</span>
+            <span class="c1">// so we must add it to MATCH or OPTIONAL MATCH clause as required.</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">treeNode</span><span class="o">.</span><span class="na">getOuterJoinStatus</span><span class="o">()</span> <span class="o">==</span> <span class="n">OuterJoinStatus</span><span class="o">.</span><span class="na">INNER</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">cypherQuery</span><span class="o">.</span><span class="na">addToMatch</span><span class="o">(</span><span class="n">match</span><span class="o">);</span>
+            <span class="o">}</span>
+            <span class="k">else</span> <span class="o">{</span>
+                <span class="n">cypherQuery</span><span class="o">.</span><span class="na">addToOptionalMatch</span><span class="o">(</span><span class="n">match</span><span class="o">);</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="c1">// Recursively add all the children TreeNodes to the Match/Optional Match clause</span>
+    <span class="k">for</span> <span class="o">(</span><span class="n">String</span> <span class="n">key</span> <span class="o">:</span> <span class="n">treeNode</span><span class="o">.</span><span class="na">getChildrenKeys</span><span class="o">())</span> <span class="o">{</span>
+        <span class="n">createMatchClause</span><span class="o">(</span><span class="n">cypherQuery</span><span class="o">,</span> <span class="n">treeNode</span><span class="o">.</span><span class="na">getChild</span><span class="o">(</span><span class="n">key</span><span class="o">));</span>
+    <span class="o">}</span>
+<span class="o">}</span></code></pre></figure>
+
+<p>In the next post, the generation of <a href="http://neo4j.com/docs/developer-manual/current/cypher/clauses/where/">Where</a> clause will be covered. It is most complex of all because it involves converting around 30+ PathQuery contraints into their equivalend Cypher expressions.</p>
+
+                    ]]>
+                </content:encoded>
+                <guid isPermaLink="false">/gsoc/2017/07/02/creating-match-return-order-by-from-pathtree/</guid>
+                <description>
+                    
+                </description>
+                <pubDate>Sun, 02 Jul 2017 13:30:00 +0530</pubDate>
+                <author>Yash Sharma</author>
+            </item>
+        
+    
+        
+            <item>
+                <title>PathQuery To Cypher - Part 2</title>
+                <link>http://localhost:4000/gsoc/2017/06/26/path-query-cypher-puzzle-part-2/</link>
+                <content:encoded>
+                    <![CDATA[
+                    <p>In this post I’ll present the approach that I am using for the converting Path Query to Cypher. The basics of Path Query to Cypher conversion have been discussed in my <a href="/blog/2017/path-query-cypher-puzzle/">previous post</a>.</p>
+
+<h2 id="observations">Observations</h2>
+
+<p>A Path Query consists of many <em>paths</em>. Each path represents some data in the database. For example consider the following Path Query.</p>
+
+<figure class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;query</span> <span class="na">model=</span><span class="s">"genomic"</span> <span class="na">view=</span><span class="s">"Gene.length Gene.homologues.dataSets.publication.title"</span> <span class="na">constraintLogic=</span><span class="s">"(A and B)"</span><span class="nt">&gt;</span>
+	<span class="nt">&lt;constraint</span> <span class="na">path=</span><span class="s">"Gene.homologues.evidence.publications.abstractText"</span> <span class="na">value=</span><span class="s">"a"</span> <span class="na">op=</span><span class="s">"CONTAINS"</span> <span class="na">code=</span><span class="s">"A"</span><span class="nt">/&gt;</span>
+	<span class="nt">&lt;constraint</span> <span class="na">path=</span><span class="s">"Gene.homologues.dataSets.name"</span> <span class="na">value=</span><span class="s">"a"</span> <span class="na">op=</span><span class="s">"CONTAINS"</span> <span class="na">code=</span><span class="s">"B"</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;/query&gt;</span></code></pre></figure>
+
+<p>It contains the following four paths.</p>
+
+<ul>
+  <li><code class="highlighter-rouge">Gene.length</code></li>
+  <li><code class="highlighter-rouge">Gene.homologues.dataSets.name</code></li>
+  <li><code class="highlighter-rouge">Gene.homologues.dataSets.publication.title</code></li>
+  <li><code class="highlighter-rouge">Gene.homologues.evidence.publications.abstractText</code></li>
+</ul>
+
+<p>One observation that we can make by looking at these paths is that some prefixes are common in paths. For example, <code class="highlighter-rouge">Gene.homologues</code> is common in the last three, <code class="highlighter-rouge">Gene.homologues</code> is common is the second &amp; third and <code class="highlighter-rouge">Gene</code> prefix is there in all of them.</p>
+
+<p>Infact, while building queries in the query builder, we start from a model and add its attributes, references &amp; collections to our query. Then we move on to any of the references/collections and then add its attributes, references &amp; collections to our Path Query as required, and so on. Thus, all the paths <em>will</em> have some prefix in common and there is an <em>heirarchy</em> associated with different components of the path.</p>
+
+<p>With a bit of thought, I came to a conclusion that <a href="https://en.wikipedia.org/wiki/Tree_(data_structure)"><em>Tree Data Structure</em></a> would be the perfect representation for all the paths of the Path Query. Tree is a popular hierarchical data structure which has a root, subtrees of children with a parent node.</p>
+
+<p><img src="/images/tree-data-structure.png" alt="Tree Data Structure" /></p>
+
+<h2 id="pathtree-representation">PathTree Representation</h2>
+
+<p>Let us generate a <em>Tree</em> using the four paths of the example Path Query shown above. Since it is a Tree made up of paths, we can call it a Path Tree.</p>
+
+<p><img src="/images/PathTree.png" alt="A Path Tree" /></p>
+
+<p>A path tree is made up of many <em>TreeNodes</em>. Each tree node represents a component of the path. For example, the path <code class="highlighter-rouge">Gene.homologues.dataSets.name</code> would be represented by four TreeNodes - Gene, homologues, dataSets &amp; name. These components further represent the Nodes, Relationships &amp; Properties in the InterMine Neo4j graph. These TreeNodes also represent Neo4j Graphical Entities (&amp; properties). All the paths having common prefix have common ancestor TreeNodes in the PathTree. This way we can represent hierachy among the various components of the path and can avoid storing redundant information.</p>
+
+<h2 id="generating-cypher-using-path-tree">Generating Cypher using Path Tree</h2>
+
+<p>In Cypher, we can assign Nodes, Relationships &amp; even Paths to the variables. These variables can then be used in place of those Nodes/Relationships/Paths in the rest of the query. For example consider an example Cypher query.</p>
+
+<figure class="highlight"><pre><code class="language-cypher" data-lang="cypher">MATCH (n:Gene), (n)-[r:locatedOn]-(c:Chromosome)
+WHERE n.length &gt; 12345
+RETURN c.symbol</code></pre></figure>
+
+<p>In the example, we first matched all the <em>Genes</em> and assigned it to the variable <code class="highlighter-rouge">n</code>. Now, <code class="highlighter-rouge">n</code> is used to <em>MATCH</em> a relationship from <em>Genes</em> to <em>Chromosomes</em> and also in the <em>WHERE</em> clause it is used to compare the length of the Genes.</p>
+
+<p>This way, while converting a Path Query to Cypher, we can assign a unique variable name to each <em>TreeNode</em> in the Path Tree and then use it in the remaining MATCH, WHERE, RETURN, ORDER BY &amp; OPTIONAL MATCH clauses. The <em>high-level</em> approach, in an algorithmic form is presented as follows.</p>
+
+<figure class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="mf">1.</span> <span class="n">Take</span> <span class="n">a</span> <span class="n">PathQuery</span> <span class="n">object</span> <span class="n">as</span> <span class="n">input</span><span class="p">.</span>
+<span class="mf">2.</span> <span class="n">Retrieve</span> <span class="n">all</span> <span class="n">the</span> <span class="n">Paths</span> <span class="n">from</span> <span class="n">the</span> <span class="n">Views</span><span class="p">,</span> <span class="n">Constraints</span> <span class="o">&amp;</span> <span class="n">Sort</span> <span class="n">Order</span><span class="p">.</span>
+<span class="mf">3.</span> <span class="n">Using</span> <span class="n">all</span> <span class="n">the</span> <span class="n">Paths</span> <span class="n">of</span> <span class="n">PathQuery</span><span class="p">,</span> <span class="n">create</span> <span class="n">a</span> <span class="n">PathTree</span> <span class="n">such</span> <span class="n">that</span> 
+	<span class="mf">1.</span> <span class="n">Each</span> <span class="n">TreeNode</span> <span class="n">represents</span> <span class="n">a</span> <span class="n">component</span> <span class="n">of</span> <span class="n">the</span> <span class="n">path</span><span class="p">.</span> <span class="n">For</span> <span class="n">example</span><span class="p">,</span> <span class="n">the</span> <span class="n">path</span> <span class="s">"Gene.pathways.identifier"</span> <span class="n">forms</span> <span class="n">three</span> <span class="n">TreeNodes</span> <span class="n">i</span><span class="p">.</span><span class="n">e</span><span class="p">.</span> <span class="n">Gene</span><span class="p">,</span> <span class="n">Pathways</span> <span class="o">&amp;</span> <span class="n">Identifier</span><span class="p">.</span>
+	<span class="mf">2.</span> <span class="n">Paths</span> <span class="n">with</span> <span class="n">common</span> <span class="n">prefix</span> <span class="n">have</span> <span class="n">the</span> <span class="n">same</span> <span class="n">common</span> <span class="n">ancestor</span><span class="p">.</span>
+	<span class="mf">3.</span> <span class="n">Root</span> <span class="n">TreeNode</span> <span class="n">represents</span> <span class="n">a</span> <span class="n">Graph</span> <span class="n">Node</span><span class="p">.</span>
+	<span class="mf">4.</span> <span class="n">All</span> <span class="n">Leaves</span> <span class="n">of</span> <span class="n">the</span> <span class="n">PathTree</span> <span class="n">always</span> <span class="n">represent</span> <span class="n">Graph</span> <span class="n">Properties</span><span class="p">.</span>
+	<span class="mf">5.</span> <span class="n">All</span> <span class="n">other</span> <span class="n">Internal</span> <span class="n">TreeNodes</span> <span class="n">can</span> <span class="n">represent</span> <span class="n">either</span> <span class="n">Graph</span> <span class="n">Nodes</span> <span class="n">or</span> <span class="n">Graph</span> <span class="n">Relationships</span><span class="p">.</span>
+<span class="mf">4.</span> <span class="n">Generate</span> <span class="o">&amp;</span> <span class="n">store</span> <span class="n">a</span> <span class="n">unique</span> <span class="n">variable</span> <span class="n">name</span> <span class="n">to</span> <span class="n">each</span> <span class="n">Internal</span> <span class="n">node</span> <span class="n">of</span> <span class="n">the</span> <span class="n">PathTree</span><span class="p">.</span>
+	<span class="mf">1.</span> <span class="n">This</span> <span class="n">variable</span> <span class="n">name</span> <span class="n">will</span> <span class="n">be</span> <span class="n">used</span> <span class="k">for</span> <span class="n">referring</span> <span class="n">that</span> <span class="n">TreeNode</span> <span class="n">in</span> <span class="n">the</span> <span class="n">cypher</span> <span class="n">query</span><span class="p">.</span>
+	<span class="mf">2.</span> <span class="n">For</span> <span class="n">generating</span> <span class="n">the</span> <span class="n">variable</span> <span class="n">name</span><span class="p">,</span> <span class="n">we</span> <span class="n">can</span> <span class="n">separate</span> <span class="n">each</span> <span class="n">component</span> <span class="n">of</span> <span class="n">the</span> <span class="n">path</span> <span class="k">using</span> <span class="n">underscores</span><span class="p">.</span> <span class="n">For</span> <span class="n">example</span><span class="p">,</span> <span class="n">the</span> <span class="n">variable</span> <span class="n">name</span> <span class="k">for</span> <span class="s">"Gene.pathways.identifier"</span> <span class="n">will</span> <span class="n">be</span> <span class="n">gene_pathways_identifier</span><span class="p">.</span>
+<span class="mf">5.</span> <span class="n">Use</span> <span class="n">the</span> <span class="n">PathTree</span> <span class="o">&amp;</span> <span class="n">PathQuery</span> <span class="n">to</span> <span class="n">generate</span> <span class="n">the</span> <span class="n">cypher</span> <span class="n">query</span>
+	<span class="mf">1.</span> <span class="n">For</span> <span class="n">creating</span> <span class="n">the</span> <span class="n">Match</span> <span class="n">Clause</span><span class="p">,</span> <span class="n">starting</span> <span class="n">with</span> <span class="n">the</span> <span class="n">Root</span><span class="p">,</span> <span class="n">recursively</span> <span class="n">match</span> <span class="n">each</span> <span class="n">TreeNode</span> <span class="n">of</span> <span class="n">the</span> <span class="n">PathTree</span><span class="p">,</span>
+		<span class="mf">1.</span> <span class="n">If</span> <span class="n">the</span> <span class="n">TreeNode</span> <span class="n">is</span> <span class="n">Root</span><span class="p">,</span> <span class="n">match</span> <span class="n">the</span> <span class="n">node</span> <span class="n">itself</span><span class="p">.</span> <span class="n">e</span><span class="p">.</span><span class="n">g</span><span class="p">.</span> <span class="p">(</span><span class="n">gene</span><span class="p">).</span>
+		<span class="mf">2.</span> <span class="n">If</span> <span class="n">current</span> <span class="n">TreeNode</span> <span class="n">is</span> <span class="n">a</span> <span class="n">NODE</span><span class="p">,</span>
+			<span class="mf">1.</span> <span class="n">If</span> <span class="n">its</span> <span class="n">parent</span> <span class="n">is</span> <span class="n">also</span> <span class="n">a</span> <span class="n">NODE</span><span class="p">,</span> <span class="n">then</span> <span class="n">fetch</span> <span class="n">the</span> <span class="n">Relationship</span> <span class="n">Type</span> <span class="n">from</span> <span class="n">the</span> <span class="n">XML</span> <span class="n">data</span> <span class="n">model</span> <span class="n">file</span> <span class="n">and</span> <span class="n">create</span> <span class="n">the</span> <span class="n">match</span> <span class="n">as</span> <span class="p">(</span><span class="n">parentNode</span><span class="p">)</span><span class="o">-</span><span class="p">[</span><span class="n">relationshipFromXml</span><span class="p">]</span><span class="o">-</span><span class="p">(</span><span class="n">currentNode</span><span class="p">).</span>
+			<span class="mf">2.</span> <span class="n">If</span> <span class="n">the</span> <span class="n">parent</span> <span class="n">is</span> <span class="n">a</span> <span class="n">RELATIONSHIP</span><span class="p">,</span> <span class="n">then</span> <span class="n">fetch</span> <span class="n">the</span> <span class="n">grand</span> <span class="n">parent</span> <span class="n">from</span> <span class="n">the</span> <span class="n">PathTree</span> <span class="n">and</span> <span class="n">create</span> <span class="n">match</span> <span class="n">as</span> <span class="p">(</span><span class="n">grandParentNode</span><span class="p">)</span><span class="o">-</span><span class="p">[</span><span class="n">parentNode</span><span class="p">]</span><span class="o">-</span><span class="p">(</span><span class="n">currentNode</span><span class="p">).</span>
+		<span class="mf">3.</span> <span class="n">If</span> <span class="n">current</span> <span class="n">TreeNode</span> <span class="n">is</span> <span class="n">a</span> <span class="n">RELATIONSHIP</span><span class="p">,</span> 
+	        	<span class="mf">1.</span> <span class="n">If</span> <span class="n">current</span> <span class="n">node</span> <span class="n">does</span> <span class="n">not</span> <span class="n">have</span> <span class="n">any</span> <span class="n">children</span><span class="p">,</span> <span class="n">then</span> <span class="n">add</span> <span class="n">match</span> <span class="n">with</span> <span class="n">an</span> <span class="n">empty</span> <span class="n">node</span> <span class="n">as</span> <span class="p">(</span><span class="n">parentNode</span><span class="p">)</span><span class="o">-</span><span class="p">[</span><span class="n">currentNode</span><span class="p">]</span><span class="o">-</span><span class="p">().</span>
+	        	<span class="mf">2.</span> <span class="n">If</span> <span class="n">current</span> <span class="n">node</span> <span class="n">has</span> <span class="n">any</span> <span class="n">children</span><span class="p">,</span> <span class="n">then</span> <span class="k">do</span> <span class="n">nothing</span> <span class="p">(</span><span class="n">they</span> <span class="n">will</span> <span class="n">be</span> <span class="n">matched</span> <span class="n">when</span> <span class="n">recursion</span> <span class="n">reaches</span> <span class="n">the</span> <span class="n">children</span><span class="p">).</span>
+	<span class="mf">2.</span> <span class="n">For</span> <span class="n">creating</span> <span class="n">the</span> <span class="n">WHERE</span> <span class="n">clause</span><span class="p">,</span>
+		<span class="mf">1.</span> <span class="n">For</span> <span class="n">each</span> <span class="n">constraint</span> <span class="n">in</span> <span class="n">the</span> <span class="n">PathQuery</span><span class="p">,</span> <span class="n">generate</span> <span class="n">an</span> <span class="n">equivalent</span> <span class="n">Cypher</span> <span class="n">constraint</span><span class="p">.</span>
+		<span class="mf">2.</span> <span class="n">In</span> <span class="n">the</span> <span class="n">constraint</span> <span class="n">logic</span> <span class="n">of</span> <span class="n">the</span> <span class="n">PathQuery</span><span class="p">,</span> <span class="n">replace</span> <span class="n">the</span> <span class="n">constraint</span> <span class="n">code</span> <span class="n">of</span> <span class="n">each</span> <span class="n">constraint</span> <span class="n">with</span> <span class="n">its</span> <span class="n">equivalent</span> <span class="n">Cypher</span> <span class="n">constraint</span><span class="p">.</span>
+	<span class="mf">3.</span> <span class="n">For</span> <span class="n">creating</span> <span class="n">the</span> <span class="n">RETURN</span> <span class="n">clause</span>
+		<span class="mf">1.</span> <span class="n">For</span> <span class="n">each</span> <span class="n">view</span><span class="p">,</span> <span class="n">get</span> <span class="n">its</span> <span class="n">path</span>
+		<span class="mf">2.</span> <span class="n">Get</span> <span class="n">the</span> <span class="n">variableName</span> <span class="n">of</span> <span class="n">the</span> <span class="n">last</span> <span class="n">TreeNode</span> <span class="n">of</span> <span class="n">the</span> <span class="n">path</span>
+		<span class="mf">3.</span> <span class="n">Add</span> <span class="n">variableNames</span> <span class="n">separated</span> <span class="n">by</span> <span class="n">commas</span> <span class="k">for</span> <span class="n">each</span> <span class="n">such</span> <span class="n">variable</span>
+	<span class="mf">4.</span> <span class="n">For</span> <span class="n">creating</span> <span class="n">ORDER</span> <span class="n">BY</span> <span class="n">clause</span><span class="p">,</span>
+		<span class="mf">1.</span> <span class="n">For</span> <span class="n">each</span> <span class="n">Sort</span> <span class="n">Order</span><span class="p">,</span> <span class="n">get</span> <span class="n">its</span> <span class="n">path</span>
+		<span class="mf">2.</span> <span class="n">Get</span> <span class="n">the</span> <span class="n">variableName</span> <span class="n">of</span> <span class="n">the</span> <span class="n">last</span> <span class="n">TreeNode</span> <span class="n">of</span> <span class="n">the</span> <span class="n">path</span>
+		<span class="mf">3.</span> <span class="n">Add</span> <span class="n">variableName</span> <span class="n">ASC</span><span class="o">/</span><span class="n">DESC</span> <span class="n">separated</span> <span class="n">by</span> <span class="n">commas</span> <span class="k">for</span> <span class="n">each</span> <span class="n">such</span> <span class="n">variable</span>
+	<span class="mf">5.</span> <span class="n">For</span> <span class="n">handling</span> <span class="n">JOIN</span> <span class="n">operations</span> <span class="n">in</span> <span class="n">the</span> <span class="n">PathQuery</span><span class="p">,</span>
+		<span class="mf">1.</span> <span class="n">Add</span> <span class="n">OPTIONAL</span> <span class="n">MATCH</span> <span class="n">clause</span> <span class="n">in</span> <span class="n">the</span> <span class="n">query</span> <span class="k">for</span> <span class="n">corresponding</span> <span class="n">paths</span><span class="p">.</span>
+<span class="mf">7.</span> <span class="n">Return</span> <span class="n">the</span> <span class="n">generated</span> <span class="n">query</span></code></pre></figure>
+
+<p>In the next post, I’ll explain the generation of each clause - MATCH, RETURN, ORDER BY, WHERE &amp; OPTIONAL MATCH separately. Meanwhile, you can have a look at the Path Query to Cypher conversion code at <a href="https://github.com/intermine/neo4j/tree/dev/intermine-neo4j/src/main/java/org/intermine/neo4j/cypher">org.intermine.neo4j.cypher</a> package.</p>
+
+                    ]]>
+                </content:encoded>
+                <guid isPermaLink="false">/gsoc/2017/06/26/path-query-cypher-puzzle-part-2/</guid>
+                <description>
+                    
+                </description>
+                <pubDate>Mon, 26 Jun 2017 13:30:00 +0530</pubDate>
+                <author>Yash Sharma</author>
+            </item>
+        
+    
+        
+            <item>
+                <title>The PathQuery To Cypher Puzzle - Part 1</title>
+                <link>http://localhost:4000/gsoc/2017/06/18/path-query-cypher-puzzle/</link>
+                <content:encoded>
+                    <![CDATA[
+                    <p>The conversion of PathQuery To Cypher effectively &amp; accurately is crucial for the Neo4j prototype of InterMine. This post provides a brief overview of Path Query &amp; Cypher and gives you an insight on how we plan to query the InterMine Neo4j database. In upcoming posts, the conversion approach will be discussed.</p>
+
+<p><img src="/images/intermine-neo4j.png" alt="InterMine Neo4j Logo" /></p>
+
+<h2 id="introduction">Introduction</h2>
+
+<p>If you have read my previous post, you would have an idea of what <a href="http://intermine.org/">InterMine</a> is, a data warehousing system which stores complex biological data. Now, one of the main features of InterMine is its fast &amp; flexible querying ability. After all what is the point of storing the data if you can’t retrieve it as per your requirements, fast enough! :)</p>
+
+<p>So, there are two parts to an InterMine data warehouse, front-end and back-end. The new front-end of InterMine is called <a href="http://bluegenes.apps.intermine.org/">BlueGenes</a> and is being developed in the <a href="https://github.com/intermine/bluegenes">BlueGenes Repository</a>. In order to retrieve any data from InterMine, users need to submit some information about the data to BlueGenes. For example, give me all the <em>Experiments</em> in which, the <em>Notch</em> gene in organism <em>Drosophila</em> participates. Now based on this information, <a href="http://bluegenes.apps.intermine.org/">BlueGenes</a> generates a <em>Path Query</em>. The back-end part processes this <em>Path Query</em> and returns the required data. You should give a try to the <a href="http://bluegenes.apps.intermine.org/#/querybuilder">BlueGenes Query Builder</a>, it makes building <em>Path Queries</em> easier, plus the UI is cool.</p>
+
+<h2 id="path-query">Path Query</h2>
+
+<p>If you would like a detailed explanation about Path Queries, you can find it at <a href="http://intermine.readthedocs.io/en/latest/api/pathquery/">The PathQuery API docs</a>. Here I am presenting a much shorter version. First, lets look at a simple PathQuery example.</p>
+
+<figure class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;query</span> <span class="na">model=</span><span class="s">"genomic"</span> <span class="na">view=</span><span class="s">"Gene.symbol"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;constraint</span> <span class="na">path=</span><span class="s">"Gene.length"</span> <span class="na">op=</span><span class="s">"&amp;gt;"</span> <span class="na">value=</span><span class="s">"12345"</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;/query&gt;</span></code></pre></figure>
+
+<p>These three lines of XML make up a PathQuery which says, for all the <em>Genes</em> which have the <em>length</em> greater than <em>12345</em>, give me their <em>Symbols</em>. The PathQuery consists of the following parts.</p>
+
+<ul>
+  <li>
+    <p><code class="highlighter-rouge">Paths</code> - In the example, <code class="highlighter-rouge">Gene.symbol</code>, <code class="highlighter-rouge">Gene.length</code> are paths. Paths can be of any arbitrary length, e.g. <code class="highlighter-rouge">Protein.gene.homologues.homologue.alleles.alleleClass</code> is also a valid Path.</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">Views</code> - These are the attributes that we want to retrieve from the database. First line in the example shows the <code class="highlighter-rouge">view</code> part.</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">Constraints</code> - These are used restrict the matching values i.e. to filter the data. In the example, the second line is the constraint part which says <code class="highlighter-rouge">Gene.length &gt; 12345</code>.</p>
+  </li>
+</ul>
+
+<p>As I mentioned, I am not presenting other PathQuery parts line JOINSs, Sort Order etc to keep it simple. If you want to get in detail of PathQuery, you are welcome to checkout <a href="http://intermine.readthedocs.io/en/latest/api/pathquery/">The PathQuery API docs</a>.</p>
+
+<h2 id="querying-neo4j-database">Querying Neo4j Database</h2>
+
+<p>The goal of the project this summer, is to build a prototype of InterMine which uses Neo4j database at the backend. Now, there are three possible ways to query a Neo4j database.</p>
+
+<ul>
+  <li>
+    <p><a href="https://neo4j.com/docs/java-reference/current/javadocs/org/neo4j/graphdb/package-summary.html">Core Java API</a></p>
+  </li>
+  <li>
+    <p><a href="https://neo4j.com/docs/java-reference/current/javadocs/org/neo4j/graphdb/traversal/package-summary.html">Traversal Framework</a></p>
+  </li>
+  <li>
+    <p><a href="https://neo4j.com/docs/developer-manual/current/cypher/">Cypher</a></p>
+  </li>
+</ul>
+
+<p>The first two can only be used for creating embedded Neo4j applications i.e. they work when your application runs on same JVM as the Neo4j database instance. In other words, the developed Java application (based on Core Java API or Traversal) and the Neo4j database must reside on the same server.</p>
+
+<p>On the other hand, Cypher runs on <a href="https://boltprotocol.org/">Bolt Protocol</a> which is a client-server protocol designed for database applications. It allows a client to send statements, each consisting of a single string and a set of typed parameters. The server responds to each request with a result message and an optional stream of result records. The massive advantage of this protcol is that, the Neo4j database and the client application need not be there on the same machine. So, I can run the client side application on my machine and run the queries on a database running on any machine on the planet, if it is connected to the Internet. How awesome is that! ^_^</p>
+
+<p>Although, Core Java API &amp; Traversal framework are a bit faster than Cypher, we decided to go with Cypher because of this advantage. Now let’s discuss a bit about Cypher before moving further.</p>
+
+<h2 id="cypher">Cypher</h2>
+
+<p>The <em>Cypher Query Language</em> (CQL) aka Cypher is a declarative language that is used to query the Neo4j graph database. Again, if you wanna go in detail, checkout <a href="https://neo4j.com/docs/developer-manual/current/cypher/">Neo4j Developer Manual</a>. I am barely touching the surface here. So, here is a simple Cypher query example.</p>
+
+<figure class="highlight"><pre><code class="language-cypher" data-lang="cypher">MATCH (n:Gene)
+WHERE n.length &gt; 12345
+RETURN n.symbol</code></pre></figure>
+
+<p>This Cypher query asks Neo4j engine to match all the nodes which are labelled as <em>Genes</em>, and if their <em>length</em> is greater than <em>12345</em>, then return their <em>symbols</em>. Yeah, this is similar to what the PathQuery example above says. The only difference is that this is in the context of a Graph Database and that was in the context of InterMine which is based on a relational database.</p>
+
+<h2 id="pathquery-to-cypher">PathQuery To Cypher</h2>
+
+<p>Now, we know that the InterMine front-end creates PathQueries which are processed by the IM Path Query Service. Also, the InterMine Neo4j Graph is queried using Cypher. So, in order for BlueGenes to query Neo4j, we need to somehow convert the Path Query into Cypher.</p>
+
+<p>Since the <em>paths</em> in the path query can get arbitrarily big and many other components like JOINs, Sort Order, Constraints are there to add to the complexity, the conversion of Path Query to Cypher is not a trivial task. The converter should convert ANY path query of ANY complexity to cypher. Turns out that this is the hardest and the most time consuming part of the project.</p>
+
+<p>In the next part, I am going to cover the approach that we are going to use for PathQuery to Cypher conversion. So stay tuned!</p>
+
+                    ]]>
+                </content:encoded>
+                <guid isPermaLink="false">/gsoc/2017/06/18/path-query-cypher-puzzle/</guid>
+                <description>
+                    
+                </description>
+                <pubDate>Sun, 18 Jun 2017 13:30:00 +0530</pubDate>
+                <author>Yash Sharma</author>
+            </item>
+        
+    
+        
+            <item>
+                <title>Metadata in Neo4j</title>
+                <link>http://localhost:4000/gsoc/2017/06/11/metadata-in-neo4j/</link>
+                <content:encoded>
+                    <![CDATA[
+                    <p>This post describes how the Metagraph is used to store the schema in the Neo4j database.</p>
+
+<h2 id="introduction">Introduction</h2>
+
+<p><a href="http://intermine.org/">InterMine</a>, as a data warehousing system, stores biological data which is loaded from various data sources. It is imperative to ensure that the loaded data conforms to the existing schema/model so as to maintain the data integrity.</p>
+
+<p>Presently the data model in InterMine is stored in an external <a href="https://github.com/intermine/intermine/blob/dev/bio/core/core.xml">XML file</a>. For each entity, its attributes, references and collections are stored in this XML file. For example, a part of the file which has the BioEntity model looks like this.</p>
+
+<figure class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;class</span> <span class="na">name=</span><span class="s">"BioEntity"</span> <span class="na">is-interface=</span><span class="s">"true"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;attribute</span> <span class="na">name=</span><span class="s">"primaryIdentifier"</span> <span class="na">type=</span><span class="s">"java.lang.String"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;attribute</span> <span class="na">name=</span><span class="s">"secondaryIdentifier"</span> <span class="na">type=</span><span class="s">"java.lang.String"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;attribute</span> <span class="na">name=</span><span class="s">"symbol"</span> <span class="na">type=</span><span class="s">"java.lang.String"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;attribute</span> <span class="na">name=</span><span class="s">"name"</span> <span class="na">type=</span><span class="s">"java.lang.String"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;reference</span> <span class="na">name=</span><span class="s">"organism"</span> <span class="na">referenced-type=</span><span class="s">"Organism"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;collection</span> <span class="na">name=</span><span class="s">"locatedFeatures"</span> <span class="na">referenced-type=</span><span class="s">"Location"</span> <span class="na">reverse-reference=</span><span class="s">"locatedOn"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;collection</span> <span class="na">name=</span><span class="s">"locations"</span> <span class="na">referenced-type=</span><span class="s">"Location"</span> <span class="na">reverse-reference=</span><span class="s">"feature"</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;collection</span> <span class="na">name=</span><span class="s">"ontologyAnnotations"</span> <span class="na">referenced-type=</span><span class="s">"OntologyAnnotation"</span> <span class="na">reverse-reference=</span><span class="s">"subject"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;collection</span> <span class="na">name=</span><span class="s">"synonyms"</span> <span class="na">referenced-type=</span><span class="s">"Synonym"</span> <span class="na">reverse-reference=</span><span class="s">"subject"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;collection</span> <span class="na">name=</span><span class="s">"dataSets"</span> <span class="na">referenced-type=</span><span class="s">"DataSet"</span> <span class="na">reverse-reference=</span><span class="s">"bioEntities"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;collection</span> <span class="na">name=</span><span class="s">"publications"</span> <span class="na">referenced-type=</span><span class="s">"Publication"</span> <span class="na">reverse-reference=</span><span class="s">"bioEntities"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;collection</span> <span class="na">name=</span><span class="s">"crossReferences"</span> <span class="na">referenced-type=</span><span class="s">"CrossReference"</span> <span class="na">reverse-reference=</span><span class="s">"subject"</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;/class&gt;</span></code></pre></figure>
+
+<p>While developing Neo4j prototype of InterMine, to reduce the dependency on external files, it was decided to store the schema in the database itself. Neo4j being a graph database stores data in the form of Nodes and directed Relationships. This brought up two issues:</p>
+
+<ol>
+  <li>
+    <p>The data model must to be in the form of a graph itself so that it can be stored in the Neo4j database.</p>
+  </li>
+  <li>
+    <p>The data model should represent all the existing Nodes in the database and the Relationships among them.</p>
+  </li>
+</ol>
+
+<p>Since the data model is a graph and it stores information about the InterMine graph, it can be called a metagraph.</p>
+
+<h2 id="metagraph-structure">Metagraph Structure</h2>
+
+<p>Each node in the metagraph is assigned <code class="highlighter-rouge">:Metagraph</code> label. All the metagraph nodes are further classified into two types, NodeType and RelType. As the name suggests, each NodeType node represents a specific type of nodes and each RelType node represents a specific type of relationship in the IM graph. So each node has either <code class="highlighter-rouge">:NodeType</code> or <code class="highlighter-rouge">:RelType</code> label depending on which entity it represents.</p>
+
+<h4 id="nodetype">NodeType</h4>
+
+<p>A metagraph node labelled <code class="highlighter-rouge">:NodeType</code> contains following two properties.</p>
+
+<ol>
+  <li>
+    <p><strong>labels</strong> - A list containing the labels of the nodes that are represented by the <code class="highlighter-rouge">:NodeType</code> node. For example, [“Gene”,”SequenceFeature”,”BioEntity”].</p>
+  </li>
+  <li>
+    <p><strong>keys</strong> - A list containing the keys of all the properties exist amongst the nodes that are represented by the <code class="highlighter-rouge">:NodeType</code> node. For example, [“primaryIdentifier”, “secondaryIdentifier”, “symbol”].</p>
+  </li>
+</ol>
+
+<p>Each <code class="highlighter-rouge">:NodeType</code> node is uniquely identified by its labels property. So, for all the nodes in the IM graph which are labelled <code class="highlighter-rouge">:Gene</code>, <code class="highlighter-rouge">:SequenceFeature</code>, <code class="highlighter-rouge">:BioEntity</code>, there exists one <code class="highlighter-rouge">:NodeType</code> node in the metagraph which has its labels property set as [“Gene”,”SequenceFeature”,”BioEntity”].</p>
+
+<h4 id="reltype">RelType</h4>
+
+<p>A metagraph node labelled <code class="highlighter-rouge">:RelType</code> contains following two properties.</p>
+
+<ol>
+  <li>
+    <p><strong>type</strong> - A string denoting the <code class="highlighter-rouge">type</code> of the relationships that are represented by the <code class="highlighter-rouge">:RelType</code> node. For example, “HOMOLOGUE_OF”.</p>
+  </li>
+  <li>
+    <p><strong>keys</strong> - A list containing the keys of all the properties exist amongst the relationships that are represented by the <code class="highlighter-rouge">:RelType</code> node. For example, [“DataSet”].</p>
+  </li>
+</ol>
+
+<p>Each <code class="highlighter-rouge">:RelType</code> node is uniquely identified by its type property. So, for all the relationships of type HOMOLOGUE_OF in the IM graph, there exists one <code class="highlighter-rouge">:RelType</code> node in the metagraph which has its type property set as “HOMOLOGUE_OF”.</p>
+
+<h4 id="relationships-in-metagraph">Relationships in MetaGraph</h4>
+
+<p>Metagraph should not only contain information about the properties of various entities in the IM graph but it should also store how different types of nodes are connected to each other. To represent this information, we make use of Neo4j relationships.</p>
+
+<p>We know that each <code class="highlighter-rouge">:RelType</code> node represents a type of relationships that exist in the IM graph. Now, we create two outgoing relationships/edges from each <code class="highlighter-rouge">:RelType</code> node - <code class="highlighter-rouge">:StartNodeType</code> and <code class="highlighter-rouge">:EndNodeType</code>. These edges end on a <code class="highlighter-rouge">:NodeType</code> node.</p>
+
+<p>Thus the metagraph path <code class="highlighter-rouge">(a:RelType)-[:StartNodeType]-&gt;(b:NodeType)</code> shows that the relationships represented by node <code class="highlighter-rouge">a</code> starts from the nodes represented by the node <code class="highlighter-rouge">b</code>. Same case follows for <code class="highlighter-rouge">:EndNodeType</code>.</p>
+
+<p><img src="/images/metagraph.jpg" alt="Metagraph" /></p>
+
+<h2 id="generating-metagraph">Generating MetaGraph</h2>
+
+<h4 id="representing-nodes">Representing Nodes</h4>
+
+<p>The following Cypher query, creates <code class="highlighter-rouge">:NodeType</code> nodes for all the nodes that exist in the IM graph.</p>
+
+<figure class="highlight"><pre><code class="language-cypher" data-lang="cypher">MATCH (n)
+WHERE NOT n:Metagraph AND size(labels(n))&gt;0
+WITH labels(n) as LABELS, keys(n) as KEYS
+MERGE (m:Metagraph:NodeType {labels: LABELS})
+SET m.properties =
+CASE m.properties
+	WHEN NULL THEN KEYS
+    ELSE apoc.coll.union(m.properties, KEYS)
+END</code></pre></figure>
+
+<h4 id="representing-relationships">Representing Relationships</h4>
+
+<p>The following Cypher query, creates <code class="highlighter-rouge">:RelType</code> nodes for all the relationships that exist in the IM graph. It also connects them to the <code class="highlighter-rouge">:NodeType</code> nodes with <code class="highlighter-rouge">:StartNodeType</code> and <code class="highlighter-rouge">:EndNodeType</code> relationships.</p>
+
+<figure class="highlight"><pre><code class="language-cypher" data-lang="cypher">MATCH (n)-[r]-&gt;(m)
+WHERE NOT n:Metagraph AND NOT m:Metagraph
+WITH labels(n) as start_labels, type(r) as rel_type, keys(r) as rel_keys, labels(m) as end_labels
+MERGE (a:Metagraph:NodeType {labels: start_labels})
+MERGE (b:Metagraph:NodeType {labels: end_labels})
+MERGE (rel:Metagraph:RelType {type:rel_type})
+MERGE (a)&lt;-[:StartNodeType]-(rel)-[:EndNodeType]-&gt;(b)
+SET rel.properties =
+CASE
+    WHEN rel.properties IS NULL AND rel_keys IS NULL THEN []
+    WHEN rel.properties IS NULL AND rel_keys IS NOT NULL THEN rel_keys
+    WHEN rel.properties IS NOT NULL AND rel_keys IS NULL THEN rel.properties
+    WHEN rel.properties IS NOT NULL AND rel_keys IS NOT NULL THEN apoc.coll.union(rel.properties, rel_keys)
+END</code></pre></figure>
+
+<p>Once schema is generated and stored in the database, it can be accessed by the data loader at runtime. By enforing the rules of the schema, the loader maintains data integrity while loading new data to the database. The code for generating and querying metadata in Neo4j is developed in the <a href="https://github.com/intermine/neo4j/tree/dev/src/org/intermine/neo4j/metadata">org.intermine.neo4j.metadata</a> package in <a href="https://github.com/intermine/neo4j">InterMine/Neo4j</a> repository.</p>
+
+<p>Perhaps in a later post, I will discuss the <a href="https://github.com/intermine/neo4j/tree/dev/src/org/intermine/neo4j/metadata">org.intermine.neo4j.metadata</a> package and will write a small tutorial on how you can use it generate &amp; query your own Neo4j data model. So, stay tuned!</p>
+
+                    ]]>
+                </content:encoded>
+                <guid isPermaLink="false">/gsoc/2017/06/11/metadata-in-neo4j/</guid>
+                <description>
+                    
+                </description>
+                <pubDate>Sun, 11 Jun 2017 19:16:52 +0530</pubDate>
+                <author>Yash Sharma</author>
+            </item>
+        
+    
+        
+            <item>
+                <title>My GSoC Journey Begins</title>
+                <link>http://localhost:4000/gsoc/2017/05/23/gsoc-journey-begins/</link>
+                <content:encoded>
+                    <![CDATA[
+                    <p>Hello! This summer started rather nicely for me as I was accepted into Google Summer of Code. The deadline to submit the proposals was 3rd April and results were declared on 4th May. I was anxiously waiting for the results during this whole period and the results made me super happy. I dreamt of this moment since last year. I will be working for <a href="http://intermine.org/">InterMine</a> organisation throughout the summer.</p>
+
+<h2>InterMine</h2>
+
+<p>InterMine is an open source data warehouse built specifically for the integration and analysis of complex biological data. It is based out of University of Cambridge and was developed by the Micklem lab. Intermine currently uses PostgreSQL for storing the data which is a relational database.</p>
+
+<h2>My Project</h2>
+
+<p>In relational databases the data is stored in the form of tables. Now a days, Graph databases are gaining a lot of popularity. Graph databases store data in the form of nodes and relationships. InterMine needs to handle complex biological data and relations, so graph databases can be considered as a possible alternative to the current relational database. <a href="http://neo4j.com/">Neo4j</a> is one such graph database which is Open Source, well documented and has a big community backing. The aim of my project is to prototype a RESTFul API querying Neo4j database.</p>
+
+<p><img src="/images/gsoc-project-screenshot.jpeg" alt="Prototype a new RESTFul API querying Neo4j database" /></p>
+
+<p>I’ll be mentored by <a href="https://github.com/sammyjava">Sam Hokin</a>, <a href="https://github.com/vivekkrish">Vivek Krishnakumar</a> and <a href="https://github.com/danielabutano">Daniela Butano</a> through the summer. I am excited to be a part of InterMine as a GSoC student. Looking forward to contributing to the project in best of my capacity.</p>
+
+<p>Congratulations to all other GSoC students and wish you a great summer ahead.</p>
+
+                    ]]>
+                </content:encoded>
+                <guid isPermaLink="false">/gsoc/2017/05/23/gsoc-journey-begins/</guid>
+                <description>
+                    
+                </description>
+                <pubDate>Tue, 23 May 2017 19:16:52 +0530</pubDate>
+                <author>Yash Sharma</author>
+            </item>
+        
+    
+        
+            <item>
+                <title>First Jekyll Blog!</title>
+                <link>http://localhost:4000/jekyll/2017/01/20/first-jekyll-blog/</link>
+                <content:encoded>
+                    <![CDATA[
+                    <p>Hello everyone! Welcome to my blog. It is based on Jekyll which is a static HTML generator. I will share exciting stuff soon. Stay tuned!</p>
+
+                    ]]>
+                </content:encoded>
+                <guid isPermaLink="false">/jekyll/2017/01/20/first-jekyll-blog/</guid>
+                <description>
+                    
+                </description>
+                <pubDate>Fri, 20 Jan 2017 19:16:52 +0530</pubDate>
+                <author>Yash Sharma</author>
+            </item>
+        
+    
+  </channel>
+</rss>

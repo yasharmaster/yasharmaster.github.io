@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>PathQuery To Cypher - Part 2 &#8211; Yash Sharma</title>
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    <link rel="dns-prefetch" href="//fonts.gstatic.com">
+    <link rel="dns-prefetch" href="//maxcdn.bootstrapcdn.com">
+    <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Yash Sharma is a Final Year Student at IIIT Allahabad.">
+    <meta name="robots" content="all">
+    <meta name="author" content="Yash Sharma">
+    
+    <meta name="keywords" content="gsoc">
+    <link rel="canonical" href="http://localhost:4000/gsoc/2017/06/26/path-query-cypher-puzzle-part-2/">
+    <link rel="alternate" type="application/rss+xml" title="RSS Feed for Yash Sharma" href="/feed.xml" />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/pixyll.css?201903170039" type="text/css">
+
+    <!-- Fonts -->
+    
+    <link href='//fonts.googleapis.com/css?family=Merriweather:900,900italic,300,300italic' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Lato:900,300' rel='stylesheet' type='text/css'>
+    
+    
+
+    <!-- MathJax -->
+    
+
+    <!-- Verifications -->
+    
+    
+
+    <!-- Open Graph -->
+    <!-- From: https://github.com/mmistakes/hpstr-jekyll-theme/blob/master/_includes/head.html -->
+    <meta property="og:locale" content="en_US">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="PathQuery To Cypher - Part 2">
+    <meta property="og:description" content="Yash Sharma is a Final Year Student at IIIT Allahabad.">
+    <meta property="og:url" content="http://localhost:4000/gsoc/2017/06/26/path-query-cypher-puzzle-part-2/">
+    <meta property="og:site_name" content="Yash Sharma">
+    
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary" />
+    
+        <meta name="twitter:site" content="@yasharmaster" />
+        <meta name="twitter:creator" content="@yasharmaster" />
+    
+    <meta name="twitter:title" content="PathQuery To Cypher - Part 2" />
+    <meta name="twitter:description" content="Yash Sharma is a Final Year Student at IIIT Allahabad." />
+    <meta name="twitter:url" content="http://localhost:4000/gsoc/2017/06/26/path-query-cypher-puzzle-part-2/" />
+    
+
+    <!-- Icons -->
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png">
+    <link rel="icon" type="image/png" href="/favicon-192x192.png" sizes="192x192">
+    <link rel="icon" type="image/png" href="/favicon-160x160.png" sizes="160x160">
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+    <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+    <link rel="shortcut icon" href="/favicon.ico">
+
+    
+</head>
+
+<body class="site">
+  
+	
+
+  <div class="site-wrap">
+    <header class="site-header px2 px-responsive">
+  <div class="mt2 wrap">
+    <div class="measure">
+      <a href="/" class="site-title">Yash Sharma</a>
+      <nav class="site-nav">
+        
+
+
+
+    
+    
+    
+    
+        <a class="nav-link" href="/about/">About</a>
+    
+
+    
+
+    
+    
+    
+    
+        <a class="nav-link" href="/contact/">Say Hello</a>
+    
+
+    
+
+    
+    
+    
+    
+
+    
+
+
+      </nav>
+      <div class="clearfix"></div>
+      
+    </div>
+  </div>
+</header>
+
+
+    <div class="post p2 p-responsive wrap" role="main">
+      <div class="measure">
+        
+
+
+<div class="post-header mb2">
+  <h1>PathQuery To Cypher - Part 2</h1>
+  <span class="post-meta">Jun 26, 2017</span><br>
+  
+  <span class="post-meta small">
+  
+    5 minute read
+  
+  </span>
+</div>
+
+<article class="post-content">
+  <p>In this post I’ll present the approach that I am using for the converting Path Query to Cypher. The basics of Path Query to Cypher conversion have been discussed in my <a href="/blog/2017/path-query-cypher-puzzle/">previous post</a>.</p>
+
+<h2 id="observations">Observations</h2>
+
+<p>A Path Query consists of many <em>paths</em>. Each path represents some data in the database. For example consider the following Path Query.</p>
+
+<figure class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;query</span> <span class="na">model=</span><span class="s">"genomic"</span> <span class="na">view=</span><span class="s">"Gene.length Gene.homologues.dataSets.publication.title"</span> <span class="na">constraintLogic=</span><span class="s">"(A and B)"</span><span class="nt">&gt;</span>
+	<span class="nt">&lt;constraint</span> <span class="na">path=</span><span class="s">"Gene.homologues.evidence.publications.abstractText"</span> <span class="na">value=</span><span class="s">"a"</span> <span class="na">op=</span><span class="s">"CONTAINS"</span> <span class="na">code=</span><span class="s">"A"</span><span class="nt">/&gt;</span>
+	<span class="nt">&lt;constraint</span> <span class="na">path=</span><span class="s">"Gene.homologues.dataSets.name"</span> <span class="na">value=</span><span class="s">"a"</span> <span class="na">op=</span><span class="s">"CONTAINS"</span> <span class="na">code=</span><span class="s">"B"</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;/query&gt;</span></code></pre></figure>
+
+<p>It contains the following four paths.</p>
+
+<ul>
+  <li><code class="highlighter-rouge">Gene.length</code></li>
+  <li><code class="highlighter-rouge">Gene.homologues.dataSets.name</code></li>
+  <li><code class="highlighter-rouge">Gene.homologues.dataSets.publication.title</code></li>
+  <li><code class="highlighter-rouge">Gene.homologues.evidence.publications.abstractText</code></li>
+</ul>
+
+<p>One observation that we can make by looking at these paths is that some prefixes are common in paths. For example, <code class="highlighter-rouge">Gene.homologues</code> is common in the last three, <code class="highlighter-rouge">Gene.homologues</code> is common is the second &amp; third and <code class="highlighter-rouge">Gene</code> prefix is there in all of them.</p>
+
+<p>Infact, while building queries in the query builder, we start from a model and add its attributes, references &amp; collections to our query. Then we move on to any of the references/collections and then add its attributes, references &amp; collections to our Path Query as required, and so on. Thus, all the paths <em>will</em> have some prefix in common and there is an <em>heirarchy</em> associated with different components of the path.</p>
+
+<p>With a bit of thought, I came to a conclusion that <a href="https://en.wikipedia.org/wiki/Tree_(data_structure)"><em>Tree Data Structure</em></a> would be the perfect representation for all the paths of the Path Query. Tree is a popular hierarchical data structure which has a root, subtrees of children with a parent node.</p>
+
+<p><img src="/images/tree-data-structure.png" alt="Tree Data Structure" /></p>
+
+<h2 id="pathtree-representation">PathTree Representation</h2>
+
+<p>Let us generate a <em>Tree</em> using the four paths of the example Path Query shown above. Since it is a Tree made up of paths, we can call it a Path Tree.</p>
+
+<p><img src="/images/PathTree.png" alt="A Path Tree" /></p>
+
+<p>A path tree is made up of many <em>TreeNodes</em>. Each tree node represents a component of the path. For example, the path <code class="highlighter-rouge">Gene.homologues.dataSets.name</code> would be represented by four TreeNodes - Gene, homologues, dataSets &amp; name. These components further represent the Nodes, Relationships &amp; Properties in the InterMine Neo4j graph. These TreeNodes also represent Neo4j Graphical Entities (&amp; properties). All the paths having common prefix have common ancestor TreeNodes in the PathTree. This way we can represent hierachy among the various components of the path and can avoid storing redundant information.</p>
+
+<h2 id="generating-cypher-using-path-tree">Generating Cypher using Path Tree</h2>
+
+<p>In Cypher, we can assign Nodes, Relationships &amp; even Paths to the variables. These variables can then be used in place of those Nodes/Relationships/Paths in the rest of the query. For example consider an example Cypher query.</p>
+
+<figure class="highlight"><pre><code class="language-cypher" data-lang="cypher">MATCH (n:Gene), (n)-[r:locatedOn]-(c:Chromosome)
+WHERE n.length &gt; 12345
+RETURN c.symbol</code></pre></figure>
+
+<p>In the example, we first matched all the <em>Genes</em> and assigned it to the variable <code class="highlighter-rouge">n</code>. Now, <code class="highlighter-rouge">n</code> is used to <em>MATCH</em> a relationship from <em>Genes</em> to <em>Chromosomes</em> and also in the <em>WHERE</em> clause it is used to compare the length of the Genes.</p>
+
+<p>This way, while converting a Path Query to Cypher, we can assign a unique variable name to each <em>TreeNode</em> in the Path Tree and then use it in the remaining MATCH, WHERE, RETURN, ORDER BY &amp; OPTIONAL MATCH clauses. The <em>high-level</em> approach, in an algorithmic form is presented as follows.</p>
+
+<figure class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="mf">1.</span> <span class="n">Take</span> <span class="n">a</span> <span class="n">PathQuery</span> <span class="n">object</span> <span class="n">as</span> <span class="n">input</span><span class="p">.</span>
+<span class="mf">2.</span> <span class="n">Retrieve</span> <span class="n">all</span> <span class="n">the</span> <span class="n">Paths</span> <span class="n">from</span> <span class="n">the</span> <span class="n">Views</span><span class="p">,</span> <span class="n">Constraints</span> <span class="o">&amp;</span> <span class="n">Sort</span> <span class="n">Order</span><span class="p">.</span>
+<span class="mf">3.</span> <span class="n">Using</span> <span class="n">all</span> <span class="n">the</span> <span class="n">Paths</span> <span class="n">of</span> <span class="n">PathQuery</span><span class="p">,</span> <span class="n">create</span> <span class="n">a</span> <span class="n">PathTree</span> <span class="n">such</span> <span class="n">that</span> 
+	<span class="mf">1.</span> <span class="n">Each</span> <span class="n">TreeNode</span> <span class="n">represents</span> <span class="n">a</span> <span class="n">component</span> <span class="n">of</span> <span class="n">the</span> <span class="n">path</span><span class="p">.</span> <span class="n">For</span> <span class="n">example</span><span class="p">,</span> <span class="n">the</span> <span class="n">path</span> <span class="s">"Gene.pathways.identifier"</span> <span class="n">forms</span> <span class="n">three</span> <span class="n">TreeNodes</span> <span class="n">i</span><span class="p">.</span><span class="n">e</span><span class="p">.</span> <span class="n">Gene</span><span class="p">,</span> <span class="n">Pathways</span> <span class="o">&amp;</span> <span class="n">Identifier</span><span class="p">.</span>
+	<span class="mf">2.</span> <span class="n">Paths</span> <span class="n">with</span> <span class="n">common</span> <span class="n">prefix</span> <span class="n">have</span> <span class="n">the</span> <span class="n">same</span> <span class="n">common</span> <span class="n">ancestor</span><span class="p">.</span>
+	<span class="mf">3.</span> <span class="n">Root</span> <span class="n">TreeNode</span> <span class="n">represents</span> <span class="n">a</span> <span class="n">Graph</span> <span class="n">Node</span><span class="p">.</span>
+	<span class="mf">4.</span> <span class="n">All</span> <span class="n">Leaves</span> <span class="n">of</span> <span class="n">the</span> <span class="n">PathTree</span> <span class="n">always</span> <span class="n">represent</span> <span class="n">Graph</span> <span class="n">Properties</span><span class="p">.</span>
+	<span class="mf">5.</span> <span class="n">All</span> <span class="n">other</span> <span class="n">Internal</span> <span class="n">TreeNodes</span> <span class="n">can</span> <span class="n">represent</span> <span class="n">either</span> <span class="n">Graph</span> <span class="n">Nodes</span> <span class="n">or</span> <span class="n">Graph</span> <span class="n">Relationships</span><span class="p">.</span>
+<span class="mf">4.</span> <span class="n">Generate</span> <span class="o">&amp;</span> <span class="n">store</span> <span class="n">a</span> <span class="n">unique</span> <span class="n">variable</span> <span class="n">name</span> <span class="n">to</span> <span class="n">each</span> <span class="n">Internal</span> <span class="n">node</span> <span class="n">of</span> <span class="n">the</span> <span class="n">PathTree</span><span class="p">.</span>
+	<span class="mf">1.</span> <span class="n">This</span> <span class="n">variable</span> <span class="n">name</span> <span class="n">will</span> <span class="n">be</span> <span class="n">used</span> <span class="k">for</span> <span class="n">referring</span> <span class="n">that</span> <span class="n">TreeNode</span> <span class="n">in</span> <span class="n">the</span> <span class="n">cypher</span> <span class="n">query</span><span class="p">.</span>
+	<span class="mf">2.</span> <span class="n">For</span> <span class="n">generating</span> <span class="n">the</span> <span class="n">variable</span> <span class="n">name</span><span class="p">,</span> <span class="n">we</span> <span class="n">can</span> <span class="n">separate</span> <span class="n">each</span> <span class="n">component</span> <span class="n">of</span> <span class="n">the</span> <span class="n">path</span> <span class="k">using</span> <span class="n">underscores</span><span class="p">.</span> <span class="n">For</span> <span class="n">example</span><span class="p">,</span> <span class="n">the</span> <span class="n">variable</span> <span class="n">name</span> <span class="k">for</span> <span class="s">"Gene.pathways.identifier"</span> <span class="n">will</span> <span class="n">be</span> <span class="n">gene_pathways_identifier</span><span class="p">.</span>
+<span class="mf">5.</span> <span class="n">Use</span> <span class="n">the</span> <span class="n">PathTree</span> <span class="o">&amp;</span> <span class="n">PathQuery</span> <span class="n">to</span> <span class="n">generate</span> <span class="n">the</span> <span class="n">cypher</span> <span class="n">query</span>
+	<span class="mf">1.</span> <span class="n">For</span> <span class="n">creating</span> <span class="n">the</span> <span class="n">Match</span> <span class="n">Clause</span><span class="p">,</span> <span class="n">starting</span> <span class="n">with</span> <span class="n">the</span> <span class="n">Root</span><span class="p">,</span> <span class="n">recursively</span> <span class="n">match</span> <span class="n">each</span> <span class="n">TreeNode</span> <span class="n">of</span> <span class="n">the</span> <span class="n">PathTree</span><span class="p">,</span>
+		<span class="mf">1.</span> <span class="n">If</span> <span class="n">the</span> <span class="n">TreeNode</span> <span class="n">is</span> <span class="n">Root</span><span class="p">,</span> <span class="n">match</span> <span class="n">the</span> <span class="n">node</span> <span class="n">itself</span><span class="p">.</span> <span class="n">e</span><span class="p">.</span><span class="n">g</span><span class="p">.</span> <span class="p">(</span><span class="n">gene</span><span class="p">).</span>
+		<span class="mf">2.</span> <span class="n">If</span> <span class="n">current</span> <span class="n">TreeNode</span> <span class="n">is</span> <span class="n">a</span> <span class="n">NODE</span><span class="p">,</span>
+			<span class="mf">1.</span> <span class="n">If</span> <span class="n">its</span> <span class="n">parent</span> <span class="n">is</span> <span class="n">also</span> <span class="n">a</span> <span class="n">NODE</span><span class="p">,</span> <span class="n">then</span> <span class="n">fetch</span> <span class="n">the</span> <span class="n">Relationship</span> <span class="n">Type</span> <span class="n">from</span> <span class="n">the</span> <span class="n">XML</span> <span class="n">data</span> <span class="n">model</span> <span class="n">file</span> <span class="n">and</span> <span class="n">create</span> <span class="n">the</span> <span class="n">match</span> <span class="n">as</span> <span class="p">(</span><span class="n">parentNode</span><span class="p">)</span><span class="o">-</span><span class="p">[</span><span class="n">relationshipFromXml</span><span class="p">]</span><span class="o">-</span><span class="p">(</span><span class="n">currentNode</span><span class="p">).</span>
+			<span class="mf">2.</span> <span class="n">If</span> <span class="n">the</span> <span class="n">parent</span> <span class="n">is</span> <span class="n">a</span> <span class="n">RELATIONSHIP</span><span class="p">,</span> <span class="n">then</span> <span class="n">fetch</span> <span class="n">the</span> <span class="n">grand</span> <span class="n">parent</span> <span class="n">from</span> <span class="n">the</span> <span class="n">PathTree</span> <span class="n">and</span> <span class="n">create</span> <span class="n">match</span> <span class="n">as</span> <span class="p">(</span><span class="n">grandParentNode</span><span class="p">)</span><span class="o">-</span><span class="p">[</span><span class="n">parentNode</span><span class="p">]</span><span class="o">-</span><span class="p">(</span><span class="n">currentNode</span><span class="p">).</span>
+		<span class="mf">3.</span> <span class="n">If</span> <span class="n">current</span> <span class="n">TreeNode</span> <span class="n">is</span> <span class="n">a</span> <span class="n">RELATIONSHIP</span><span class="p">,</span> 
+	        	<span class="mf">1.</span> <span class="n">If</span> <span class="n">current</span> <span class="n">node</span> <span class="n">does</span> <span class="n">not</span> <span class="n">have</span> <span class="n">any</span> <span class="n">children</span><span class="p">,</span> <span class="n">then</span> <span class="n">add</span> <span class="n">match</span> <span class="n">with</span> <span class="n">an</span> <span class="n">empty</span> <span class="n">node</span> <span class="n">as</span> <span class="p">(</span><span class="n">parentNode</span><span class="p">)</span><span class="o">-</span><span class="p">[</span><span class="n">currentNode</span><span class="p">]</span><span class="o">-</span><span class="p">().</span>
+	        	<span class="mf">2.</span> <span class="n">If</span> <span class="n">current</span> <span class="n">node</span> <span class="n">has</span> <span class="n">any</span> <span class="n">children</span><span class="p">,</span> <span class="n">then</span> <span class="k">do</span> <span class="n">nothing</span> <span class="p">(</span><span class="n">they</span> <span class="n">will</span> <span class="n">be</span> <span class="n">matched</span> <span class="n">when</span> <span class="n">recursion</span> <span class="n">reaches</span> <span class="n">the</span> <span class="n">children</span><span class="p">).</span>
+	<span class="mf">2.</span> <span class="n">For</span> <span class="n">creating</span> <span class="n">the</span> <span class="n">WHERE</span> <span class="n">clause</span><span class="p">,</span>
+		<span class="mf">1.</span> <span class="n">For</span> <span class="n">each</span> <span class="n">constraint</span> <span class="n">in</span> <span class="n">the</span> <span class="n">PathQuery</span><span class="p">,</span> <span class="n">generate</span> <span class="n">an</span> <span class="n">equivalent</span> <span class="n">Cypher</span> <span class="n">constraint</span><span class="p">.</span>
+		<span class="mf">2.</span> <span class="n">In</span> <span class="n">the</span> <span class="n">constraint</span> <span class="n">logic</span> <span class="n">of</span> <span class="n">the</span> <span class="n">PathQuery</span><span class="p">,</span> <span class="n">replace</span> <span class="n">the</span> <span class="n">constraint</span> <span class="n">code</span> <span class="n">of</span> <span class="n">each</span> <span class="n">constraint</span> <span class="n">with</span> <span class="n">its</span> <span class="n">equivalent</span> <span class="n">Cypher</span> <span class="n">constraint</span><span class="p">.</span>
+	<span class="mf">3.</span> <span class="n">For</span> <span class="n">creating</span> <span class="n">the</span> <span class="n">RETURN</span> <span class="n">clause</span>
+		<span class="mf">1.</span> <span class="n">For</span> <span class="n">each</span> <span class="n">view</span><span class="p">,</span> <span class="n">get</span> <span class="n">its</span> <span class="n">path</span>
+		<span class="mf">2.</span> <span class="n">Get</span> <span class="n">the</span> <span class="n">variableName</span> <span class="n">of</span> <span class="n">the</span> <span class="n">last</span> <span class="n">TreeNode</span> <span class="n">of</span> <span class="n">the</span> <span class="n">path</span>
+		<span class="mf">3.</span> <span class="n">Add</span> <span class="n">variableNames</span> <span class="n">separated</span> <span class="n">by</span> <span class="n">commas</span> <span class="k">for</span> <span class="n">each</span> <span class="n">such</span> <span class="n">variable</span>
+	<span class="mf">4.</span> <span class="n">For</span> <span class="n">creating</span> <span class="n">ORDER</span> <span class="n">BY</span> <span class="n">clause</span><span class="p">,</span>
+		<span class="mf">1.</span> <span class="n">For</span> <span class="n">each</span> <span class="n">Sort</span> <span class="n">Order</span><span class="p">,</span> <span class="n">get</span> <span class="n">its</span> <span class="n">path</span>
+		<span class="mf">2.</span> <span class="n">Get</span> <span class="n">the</span> <span class="n">variableName</span> <span class="n">of</span> <span class="n">the</span> <span class="n">last</span> <span class="n">TreeNode</span> <span class="n">of</span> <span class="n">the</span> <span class="n">path</span>
+		<span class="mf">3.</span> <span class="n">Add</span> <span class="n">variableName</span> <span class="n">ASC</span><span class="o">/</span><span class="n">DESC</span> <span class="n">separated</span> <span class="n">by</span> <span class="n">commas</span> <span class="k">for</span> <span class="n">each</span> <span class="n">such</span> <span class="n">variable</span>
+	<span class="mf">5.</span> <span class="n">For</span> <span class="n">handling</span> <span class="n">JOIN</span> <span class="n">operations</span> <span class="n">in</span> <span class="n">the</span> <span class="n">PathQuery</span><span class="p">,</span>
+		<span class="mf">1.</span> <span class="n">Add</span> <span class="n">OPTIONAL</span> <span class="n">MATCH</span> <span class="n">clause</span> <span class="n">in</span> <span class="n">the</span> <span class="n">query</span> <span class="k">for</span> <span class="n">corresponding</span> <span class="n">paths</span><span class="p">.</span>
+<span class="mf">7.</span> <span class="n">Return</span> <span class="n">the</span> <span class="n">generated</span> <span class="n">query</span></code></pre></figure>
+
+<p>In the next post, I’ll explain the generation of each clause - MATCH, RETURN, ORDER BY, WHERE &amp; OPTIONAL MATCH separately. Meanwhile, you can have a look at the Path Query to Cypher conversion code at <a href="https://github.com/intermine/neo4j/tree/dev/intermine-neo4j/src/main/java/org/intermine/neo4j/cypher">org.intermine.neo4j.cypher</a> package.</p>
+
+</article>
+
+
+
+
+
+
+
+
+
+
+
+      </div>
+    </div>
+  </div>
+
+  <footer class="center">
+  <div class="measure">
+    <small>
+      &copy; 2019 Yash Sharma
+      </br>
+      Made with <3 in India
+    </small>
+  </div>
+</footer>
+
+<script type="text/javascript">
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js")
+    }
+</script>
+
+</body>
+</html>

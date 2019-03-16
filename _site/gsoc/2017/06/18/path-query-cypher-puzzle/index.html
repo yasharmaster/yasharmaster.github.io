@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>The PathQuery To Cypher Puzzle - Part 1 &#8211; Yash Sharma</title>
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    <link rel="dns-prefetch" href="//fonts.gstatic.com">
+    <link rel="dns-prefetch" href="//maxcdn.bootstrapcdn.com">
+    <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Yash Sharma is a Final Year Student at IIIT Allahabad.">
+    <meta name="robots" content="all">
+    <meta name="author" content="Yash Sharma">
+    
+    <meta name="keywords" content="gsoc">
+    <link rel="canonical" href="http://localhost:4000/gsoc/2017/06/18/path-query-cypher-puzzle/">
+    <link rel="alternate" type="application/rss+xml" title="RSS Feed for Yash Sharma" href="/feed.xml" />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/pixyll.css?201903170039" type="text/css">
+
+    <!-- Fonts -->
+    
+    <link href='//fonts.googleapis.com/css?family=Merriweather:900,900italic,300,300italic' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Lato:900,300' rel='stylesheet' type='text/css'>
+    
+    
+
+    <!-- MathJax -->
+    
+
+    <!-- Verifications -->
+    
+    
+
+    <!-- Open Graph -->
+    <!-- From: https://github.com/mmistakes/hpstr-jekyll-theme/blob/master/_includes/head.html -->
+    <meta property="og:locale" content="en_US">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="The PathQuery To Cypher Puzzle - Part 1">
+    <meta property="og:description" content="Yash Sharma is a Final Year Student at IIIT Allahabad.">
+    <meta property="og:url" content="http://localhost:4000/gsoc/2017/06/18/path-query-cypher-puzzle/">
+    <meta property="og:site_name" content="Yash Sharma">
+    
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary" />
+    
+        <meta name="twitter:site" content="@yasharmaster" />
+        <meta name="twitter:creator" content="@yasharmaster" />
+    
+    <meta name="twitter:title" content="The PathQuery To Cypher Puzzle - Part 1" />
+    <meta name="twitter:description" content="Yash Sharma is a Final Year Student at IIIT Allahabad." />
+    <meta name="twitter:url" content="http://localhost:4000/gsoc/2017/06/18/path-query-cypher-puzzle/" />
+    
+
+    <!-- Icons -->
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png">
+    <link rel="icon" type="image/png" href="/favicon-192x192.png" sizes="192x192">
+    <link rel="icon" type="image/png" href="/favicon-160x160.png" sizes="160x160">
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+    <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+    <link rel="shortcut icon" href="/favicon.ico">
+
+    
+</head>
+
+<body class="site">
+  
+	
+
+  <div class="site-wrap">
+    <header class="site-header px2 px-responsive">
+  <div class="mt2 wrap">
+    <div class="measure">
+      <a href="/" class="site-title">Yash Sharma</a>
+      <nav class="site-nav">
+        
+
+
+
+    
+    
+    
+    
+        <a class="nav-link" href="/about/">About</a>
+    
+
+    
+
+    
+    
+    
+    
+        <a class="nav-link" href="/contact/">Say Hello</a>
+    
+
+    
+
+    
+    
+    
+    
+
+    
+
+
+      </nav>
+      <div class="clearfix"></div>
+      
+    </div>
+  </div>
+</header>
+
+
+    <div class="post p2 p-responsive wrap" role="main">
+      <div class="measure">
+        
+
+
+<div class="post-header mb2">
+  <h1>The PathQuery To Cypher Puzzle - Part 1</h1>
+  <span class="post-meta">Jun 18, 2017</span><br>
+  
+  <span class="post-meta small">
+  
+    5 minute read
+  
+  </span>
+</div>
+
+<article class="post-content">
+  <p>The conversion of PathQuery To Cypher effectively &amp; accurately is crucial for the Neo4j prototype of InterMine. This post provides a brief overview of Path Query &amp; Cypher and gives you an insight on how we plan to query the InterMine Neo4j database. In upcoming posts, the conversion approach will be discussed.</p>
+
+<p><img src="/images/intermine-neo4j.png" alt="InterMine Neo4j Logo" /></p>
+
+<h2 id="introduction">Introduction</h2>
+
+<p>If you have read my previous post, you would have an idea of what <a href="http://intermine.org/">InterMine</a> is, a data warehousing system which stores complex biological data. Now, one of the main features of InterMine is its fast &amp; flexible querying ability. After all what is the point of storing the data if you can’t retrieve it as per your requirements, fast enough! :)</p>
+
+<p>So, there are two parts to an InterMine data warehouse, front-end and back-end. The new front-end of InterMine is called <a href="http://bluegenes.apps.intermine.org/">BlueGenes</a> and is being developed in the <a href="https://github.com/intermine/bluegenes">BlueGenes Repository</a>. In order to retrieve any data from InterMine, users need to submit some information about the data to BlueGenes. For example, give me all the <em>Experiments</em> in which, the <em>Notch</em> gene in organism <em>Drosophila</em> participates. Now based on this information, <a href="http://bluegenes.apps.intermine.org/">BlueGenes</a> generates a <em>Path Query</em>. The back-end part processes this <em>Path Query</em> and returns the required data. You should give a try to the <a href="http://bluegenes.apps.intermine.org/#/querybuilder">BlueGenes Query Builder</a>, it makes building <em>Path Queries</em> easier, plus the UI is cool.</p>
+
+<h2 id="path-query">Path Query</h2>
+
+<p>If you would like a detailed explanation about Path Queries, you can find it at <a href="http://intermine.readthedocs.io/en/latest/api/pathquery/">The PathQuery API docs</a>. Here I am presenting a much shorter version. First, lets look at a simple PathQuery example.</p>
+
+<figure class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;query</span> <span class="na">model=</span><span class="s">"genomic"</span> <span class="na">view=</span><span class="s">"Gene.symbol"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;constraint</span> <span class="na">path=</span><span class="s">"Gene.length"</span> <span class="na">op=</span><span class="s">"&amp;gt;"</span> <span class="na">value=</span><span class="s">"12345"</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;/query&gt;</span></code></pre></figure>
+
+<p>These three lines of XML make up a PathQuery which says, for all the <em>Genes</em> which have the <em>length</em> greater than <em>12345</em>, give me their <em>Symbols</em>. The PathQuery consists of the following parts.</p>
+
+<ul>
+  <li>
+    <p><code class="highlighter-rouge">Paths</code> - In the example, <code class="highlighter-rouge">Gene.symbol</code>, <code class="highlighter-rouge">Gene.length</code> are paths. Paths can be of any arbitrary length, e.g. <code class="highlighter-rouge">Protein.gene.homologues.homologue.alleles.alleleClass</code> is also a valid Path.</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">Views</code> - These are the attributes that we want to retrieve from the database. First line in the example shows the <code class="highlighter-rouge">view</code> part.</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">Constraints</code> - These are used restrict the matching values i.e. to filter the data. In the example, the second line is the constraint part which says <code class="highlighter-rouge">Gene.length &gt; 12345</code>.</p>
+  </li>
+</ul>
+
+<p>As I mentioned, I am not presenting other PathQuery parts line JOINSs, Sort Order etc to keep it simple. If you want to get in detail of PathQuery, you are welcome to checkout <a href="http://intermine.readthedocs.io/en/latest/api/pathquery/">The PathQuery API docs</a>.</p>
+
+<h2 id="querying-neo4j-database">Querying Neo4j Database</h2>
+
+<p>The goal of the project this summer, is to build a prototype of InterMine which uses Neo4j database at the backend. Now, there are three possible ways to query a Neo4j database.</p>
+
+<ul>
+  <li>
+    <p><a href="https://neo4j.com/docs/java-reference/current/javadocs/org/neo4j/graphdb/package-summary.html">Core Java API</a></p>
+  </li>
+  <li>
+    <p><a href="https://neo4j.com/docs/java-reference/current/javadocs/org/neo4j/graphdb/traversal/package-summary.html">Traversal Framework</a></p>
+  </li>
+  <li>
+    <p><a href="https://neo4j.com/docs/developer-manual/current/cypher/">Cypher</a></p>
+  </li>
+</ul>
+
+<p>The first two can only be used for creating embedded Neo4j applications i.e. they work when your application runs on same JVM as the Neo4j database instance. In other words, the developed Java application (based on Core Java API or Traversal) and the Neo4j database must reside on the same server.</p>
+
+<p>On the other hand, Cypher runs on <a href="https://boltprotocol.org/">Bolt Protocol</a> which is a client-server protocol designed for database applications. It allows a client to send statements, each consisting of a single string and a set of typed parameters. The server responds to each request with a result message and an optional stream of result records. The massive advantage of this protcol is that, the Neo4j database and the client application need not be there on the same machine. So, I can run the client side application on my machine and run the queries on a database running on any machine on the planet, if it is connected to the Internet. How awesome is that! ^_^</p>
+
+<p>Although, Core Java API &amp; Traversal framework are a bit faster than Cypher, we decided to go with Cypher because of this advantage. Now let’s discuss a bit about Cypher before moving further.</p>
+
+<h2 id="cypher">Cypher</h2>
+
+<p>The <em>Cypher Query Language</em> (CQL) aka Cypher is a declarative language that is used to query the Neo4j graph database. Again, if you wanna go in detail, checkout <a href="https://neo4j.com/docs/developer-manual/current/cypher/">Neo4j Developer Manual</a>. I am barely touching the surface here. So, here is a simple Cypher query example.</p>
+
+<figure class="highlight"><pre><code class="language-cypher" data-lang="cypher">MATCH (n:Gene)
+WHERE n.length &gt; 12345
+RETURN n.symbol</code></pre></figure>
+
+<p>This Cypher query asks Neo4j engine to match all the nodes which are labelled as <em>Genes</em>, and if their <em>length</em> is greater than <em>12345</em>, then return their <em>symbols</em>. Yeah, this is similar to what the PathQuery example above says. The only difference is that this is in the context of a Graph Database and that was in the context of InterMine which is based on a relational database.</p>
+
+<h2 id="pathquery-to-cypher">PathQuery To Cypher</h2>
+
+<p>Now, we know that the InterMine front-end creates PathQueries which are processed by the IM Path Query Service. Also, the InterMine Neo4j Graph is queried using Cypher. So, in order for BlueGenes to query Neo4j, we need to somehow convert the Path Query into Cypher.</p>
+
+<p>Since the <em>paths</em> in the path query can get arbitrarily big and many other components like JOINs, Sort Order, Constraints are there to add to the complexity, the conversion of Path Query to Cypher is not a trivial task. The converter should convert ANY path query of ANY complexity to cypher. Turns out that this is the hardest and the most time consuming part of the project.</p>
+
+<p>In the next part, I am going to cover the approach that we are going to use for PathQuery to Cypher conversion. So stay tuned!</p>
+
+</article>
+
+
+
+
+
+
+
+
+
+
+
+      </div>
+    </div>
+  </div>
+
+  <footer class="center">
+  <div class="measure">
+    <small>
+      &copy; 2019 Yash Sharma
+      </br>
+      Made with <3 in India
+    </small>
+  </div>
+</footer>
+
+<script type="text/javascript">
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js")
+    }
+</script>
+
+</body>
+</html>
