@@ -3,8 +3,8 @@
   <channel>
     <title>Yash Sharma</title>
     <description>Yash Sharma is a Final Year Student at IIIT Allahabad.</description>
-    <link>http://yasharmaster.github.io/</link>
-    <atom:link href="http://yasharmaster.github.io/feed.xml" rel="self" type="application/rss+xml" />
+    <link>http://localhost:4000/</link>
+    <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml" />
     
       <item>
         <title>Project Report - Google Summer of Code 2017</title>
@@ -234,8 +234,8 @@ ORDER BY gene.primaryIdentifier ASC&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 </description>
         <pubDate>Tue, 29 Aug 2017 13:30:00 +0530</pubDate>
-        <link>http://yasharmaster.github.io/gsoc/2017/08/29/gsoc-2017-final-report/</link>
-        <guid isPermaLink="true">http://yasharmaster.github.io/gsoc/2017/08/29/gsoc-2017-final-report/</guid>
+        <link>http://localhost:4000/gsoc/2017/08/29/gsoc-2017-final-report/</link>
+        <guid isPermaLink="true">http://localhost:4000/gsoc/2017/08/29/gsoc-2017-final-report/</guid>
       </item>
     
       <item>
@@ -294,8 +294,8 @@ ORDER BY gene.primaryIdentifier ASC&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 &lt;p&gt;Feel free to checkout Swagger UI of InterMine Neo4j API at &lt;a href=&quot;http://intermine-neo4jwebapp.herokuapp.com/&quot;&gt;http://intermine-neo4jwebapp.herokuapp.com/&lt;/a&gt; and stay tuned for more updates.&lt;/p&gt;
 </description>
         <pubDate>Thu, 10 Aug 2017 13:30:00 +0530</pubDate>
-        <link>http://yasharmaster.github.io/gsoc/2017/08/10/documenting-intermine-neo4j-api-with-swagger/</link>
-        <guid isPermaLink="true">http://yasharmaster.github.io/gsoc/2017/08/10/documenting-intermine-neo4j-api-with-swagger/</guid>
+        <link>http://localhost:4000/gsoc/2017/08/10/documenting-intermine-neo4j-api-with-swagger/</link>
+        <guid isPermaLink="true">http://localhost:4000/gsoc/2017/08/10/documenting-intermine-neo4j-api-with-swagger/</guid>
       </item>
     
       <item>
@@ -509,8 +509,8 @@ ORDER BY b.symbol&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 &lt;p&gt;In the next post, the generation of &lt;a href=&quot;http://neo4j.com/docs/developer-manual/current/cypher/clauses/where/&quot;&gt;Where&lt;/a&gt; clause will be covered. It is most complex of all because it involves converting around 30+ PathQuery contraints into their equivalend Cypher expressions.&lt;/p&gt;
 </description>
         <pubDate>Sun, 02 Jul 2017 13:30:00 +0530</pubDate>
-        <link>http://yasharmaster.github.io/gsoc/2017/07/02/creating-match-return-order-by-from-pathtree/</link>
-        <guid isPermaLink="true">http://yasharmaster.github.io/gsoc/2017/07/02/creating-match-return-order-by-from-pathtree/</guid>
+        <link>http://localhost:4000/gsoc/2017/07/02/creating-match-return-order-by-from-pathtree/</link>
+        <guid isPermaLink="true">http://localhost:4000/gsoc/2017/07/02/creating-match-return-order-by-from-pathtree/</guid>
       </item>
     
       <item>
@@ -601,8 +601,8 @@ RETURN c.symbol&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 &lt;p&gt;In the next post, I’ll explain the generation of each clause - MATCH, RETURN, ORDER BY, WHERE &amp;amp; OPTIONAL MATCH separately. Meanwhile, you can have a look at the Path Query to Cypher conversion code at &lt;a href=&quot;https://github.com/intermine/neo4j/tree/dev/intermine-neo4j/src/main/java/org/intermine/neo4j/cypher&quot;&gt;org.intermine.neo4j.cypher&lt;/a&gt; package.&lt;/p&gt;
 </description>
         <pubDate>Mon, 26 Jun 2017 13:30:00 +0530</pubDate>
-        <link>http://yasharmaster.github.io/gsoc/2017/06/26/path-query-cypher-puzzle-part-2/</link>
-        <guid isPermaLink="true">http://yasharmaster.github.io/gsoc/2017/06/26/path-query-cypher-puzzle-part-2/</guid>
+        <link>http://localhost:4000/gsoc/2017/06/26/path-query-cypher-puzzle-part-2/</link>
+        <guid isPermaLink="true">http://localhost:4000/gsoc/2017/06/26/path-query-cypher-puzzle-part-2/</guid>
       </item>
     
       <item>
@@ -682,8 +682,8 @@ RETURN n.symbol&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 &lt;p&gt;In the next part, I am going to cover the approach that we are going to use for PathQuery to Cypher conversion. So stay tuned!&lt;/p&gt;
 </description>
         <pubDate>Sun, 18 Jun 2017 13:30:00 +0530</pubDate>
-        <link>http://yasharmaster.github.io/gsoc/2017/06/18/path-query-cypher-puzzle/</link>
-        <guid isPermaLink="true">http://yasharmaster.github.io/gsoc/2017/06/18/path-query-cypher-puzzle/</guid>
+        <link>http://localhost:4000/gsoc/2017/06/18/path-query-cypher-puzzle/</link>
+        <guid isPermaLink="true">http://localhost:4000/gsoc/2017/06/18/path-query-cypher-puzzle/</guid>
       </item>
     
       <item>
@@ -808,8 +808,8 @@ END&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 &lt;p&gt;Perhaps in a later post, I will discuss the &lt;a href=&quot;https://github.com/intermine/neo4j/tree/dev/src/org/intermine/neo4j/metadata&quot;&gt;org.intermine.neo4j.metadata&lt;/a&gt; package and will write a small tutorial on how you can use it generate &amp;amp; query your own Neo4j data model. So, stay tuned!&lt;/p&gt;
 </description>
         <pubDate>Sun, 11 Jun 2017 19:16:52 +0530</pubDate>
-        <link>http://yasharmaster.github.io/gsoc/2017/06/11/metadata-in-neo4j/</link>
-        <guid isPermaLink="true">http://yasharmaster.github.io/gsoc/2017/06/11/metadata-in-neo4j/</guid>
+        <link>http://localhost:4000/gsoc/2017/06/11/metadata-in-neo4j/</link>
+        <guid isPermaLink="true">http://localhost:4000/gsoc/2017/06/11/metadata-in-neo4j/</guid>
       </item>
     
       <item>
@@ -831,8 +831,8 @@ END&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 &lt;p&gt;Congratulations to all other GSoC students and wish you a great summer ahead.&lt;/p&gt;
 </description>
         <pubDate>Tue, 23 May 2017 19:16:52 +0530</pubDate>
-        <link>http://yasharmaster.github.io/gsoc/2017/05/23/gsoc-journey-begins/</link>
-        <guid isPermaLink="true">http://yasharmaster.github.io/gsoc/2017/05/23/gsoc-journey-begins/</guid>
+        <link>http://localhost:4000/gsoc/2017/05/23/gsoc-journey-begins/</link>
+        <guid isPermaLink="true">http://localhost:4000/gsoc/2017/05/23/gsoc-journey-begins/</guid>
       </item>
     
       <item>
@@ -840,8 +840,8 @@ END&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
         <description>&lt;p&gt;Hello everyone! Welcome to my blog. It is based on Jekyll which is a static HTML generator. I will share exciting stuff soon. Stay tuned!&lt;/p&gt;
 </description>
         <pubDate>Fri, 20 Jan 2017 19:16:52 +0530</pubDate>
-        <link>http://yasharmaster.github.io/jekyll/2017/01/20/first-jekyll-blog/</link>
-        <guid isPermaLink="true">http://yasharmaster.github.io/jekyll/2017/01/20/first-jekyll-blog/</guid>
+        <link>http://localhost:4000/jekyll/2017/01/20/first-jekyll-blog/</link>
+        <guid isPermaLink="true">http://localhost:4000/jekyll/2017/01/20/first-jekyll-blog/</guid>
       </item>
     
   </channel>
